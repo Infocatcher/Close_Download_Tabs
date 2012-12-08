@@ -527,9 +527,11 @@ TabHandler.prototype = {
 			var parentTab = tst.getParentTab(tab);
 			if(parentTab && tst.getChildTabs(parentTab).length == 1) {
 				var attr = tst.kCHILDREN;
-				parentTab.setAttribute("closedownloadtabs-backup-" + attr, parentTab.getAttribute(attr));
-				parentTab.removeAttribute(attr);
-				_log("Hide Tree Style Tab's twisty");
+				if(parentTab.hasAttribute(attr)) {
+					parentTab.setAttribute("closedownloadtabs-backup-" + attr, parentTab.getAttribute(attr));
+					parentTab.removeAttribute(attr);
+					_log("Hide Tree Style Tab's twisty");
+				}
 			}
 		}
 		_info("Hide tab" + (makeEmpty ? " (not empty)" : "") + ": " + tabLabel.substr(0, 256));
@@ -549,10 +551,12 @@ TabHandler.prototype = {
 			if(parentTab) {
 				var attr = tst.kCHILDREN;
 				var bakAttr = "closedownloadtabs-backup-" + attr;
-				if(parentTab.hasAttribute(bakAttr) && !parentTab.hasAttribute(attr)) {
-					parentTab.setAttribute(attr, parentTab.getAttribute(bakAttr));
+				if(parentTab.hasAttribute(bakAttr)) {
+					if(!parentTab.hasAttribute(attr)) {
+						parentTab.setAttribute(attr, parentTab.getAttribute(bakAttr));
+						_log("Restore Tree Style Tab's twisty");
+					}
 					parentTab.removeAttribute(bakAttr);
-					_log("Restore Tree Style Tab's twisty");
 				}
 			}
 		}
