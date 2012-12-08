@@ -139,6 +139,7 @@ TabHandler.prototype = {
 	_stop: false,
 	_hasProgressListener: false,
 	_waitedLoad: false,
+	_waitTimer: 0,
 	_stopCloseWait: 0,
 
 	check: function() {
@@ -157,9 +158,10 @@ TabHandler.prototype = {
 	},
 	init: function() {
 		this._maxLoadingWait     = prefs.get("maxLoadingWait",             2.5*60e3);
-		this._waitDelay          = prefs.get("waitDelay",                  30);
+		this._waitDelay          = prefs.get("waitDelay",                  500);
 		this._waitLoaded         = prefs.get("waitLoadedTab",              80);
 		this._waitLoadedGM       = prefs.get("waitLoadedTab.greasemonkey", 1000);
+		this._waitStopProgress   = prefs.get("waitAfterStopProgress",      10);
 		this._waitDownload       = prefs.get("waitDownload",               2000);
 		this._waitDownloadAction = prefs.get("waitDownloadAction",         1000);
 		this._stopWait = Date.now() + this._maxLoadingWait;
@@ -210,7 +212,6 @@ TabHandler.prototype = {
 			var contentType = request.contentType;
 		}
 		catch(e) { // Component returned failure code: 0x80040111 (NS_ERROR_NOT_AVAILABLE) [nsIChannel.contentType]
-			return;
 		}
 		if(contentType == "application/x-xpinstall") {
 			// Built-in extensions installation mechanism use tab depended notifications,
@@ -227,6 +228,9 @@ TabHandler.prototype = {
 			_log("Opened FTP with " + contentType + ', looks like "550 Failed to change directory" => set stop flag');
 			this._stop = true;
 		}
+		this.stopWait();
+		this.wait(this._waitStopProgress);
+		_log("onStateChange() + STATE_STOP => wait " + this._waitStopProgress + " ms");
 	},
 	onLocationChange: function(webProgress, request, uri, flags) {
 	},
@@ -238,7 +242,10 @@ TabHandler.prototype = {
 	},
 
 	wait: function(delay) {
-		this.window.setTimeout(this.fixedWait, delay || this._waitDelay);
+		this._waitTimer = this.window.setTimeout(this.fixedWait, delay || this._waitDelay);
+	},
+	stopWait: function() {
+		this.window.clearTimeout(this._waitTimer);
 	},
 	get fixedWait() {
 		return setProperty(this, "fixedWait", this.waitProceed.bind(this));
