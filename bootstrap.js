@@ -522,6 +522,16 @@ TabHandler.prototype = {
 		tab.closing = true; // See "visibleTabs" getter in chrome://browser/content/tabbrowser.xml
 
 		window.addEventListener("TabSelect", this, false);
+		if("TreeStyleTabService" in window) {
+			var tst = window.TreeStyleTabService;
+			var parentTab = tst.getParentTab(tab);
+			if(parentTab && tst.getChildTabs(parentTab).length == 1) {
+				var attr = tst.kCHILDREN;
+				parentTab.setAttribute("closedownloadtabs-backup-" + attr, parentTab.getAttribute(attr));
+				parentTab.removeAttribute(attr);
+				_log("Hide Tree Style Tab's twisty");
+			}
+		}
 		_info("Hide tab" + (makeEmpty ? " (not empty)" : "") + ": " + tabLabel.substr(0, 256));
 	},
 	showTab: function(tab) {
@@ -531,6 +541,21 @@ TabHandler.prototype = {
 		tab.removeAttribute("collapsed");
 		if(tab == this.origTab)
 			this.gBrowser.selectedTab = tab;
+
+		var window = this.window;
+		if("TreeStyleTabService" in window) {
+			var tst = window.TreeStyleTabService;
+			var parentTab = tst.getParentTab(tab);
+			if(parentTab) {
+				var attr = tst.kCHILDREN;
+				var bakAttr = "closedownloadtabs-backup-" + attr;
+				if(parentTab.hasAttribute(bakAttr) && !parentTab.hasAttribute(attr)) {
+					parentTab.setAttribute(attr, parentTab.getAttribute(bakAttr));
+					parentTab.removeAttribute(bakAttr);
+					_log("Restore Tree Style Tab's twisty");
+				}
+			}
+		}
 	},
 	getString: function(id) {
 		try {
