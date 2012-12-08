@@ -493,7 +493,7 @@ TabHandler.prototype = {
 			if(!this._stopCloseWait) {
 				this._stopCloseWait = now + this._maxLoadingWait;
 				_info('Tab state was changed to "loading" => show tab');
-				this.showTab();
+				this.showTab(tab);
 			}
 			if(now < this._stopCloseWait) {
 				window.setTimeout(this.fixedCloseTab, this._waitDelay);
@@ -513,13 +513,12 @@ TabHandler.prototype = {
 		}
 		else if(tab.closing) {
 			_info("Tab aren't empty anymore => show it");
-			this.showTab();
+			this.showTab(tab);
 		}
 		this.destroy();
 	},
-	showTab: function() {
+	showTab: function(tab) {
 		// Open in Browser extension https://addons.mozilla.org/firefox/addon/open-in-browser/ ?
-		var tab = this.tab;
 		tab.closing = false;
 		tab.removeAttribute(windowsObserver.closedAttr);
 		tab.removeAttribute("collapsed");
