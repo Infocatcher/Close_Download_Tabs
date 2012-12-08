@@ -263,7 +263,7 @@ TabHandler.prototype = {
 
 		var browser = this.browser;
 		var window = this.window;
-		if(this.isLoading) {
+		if(this.isLoading(browser)) {
 			if(Date.now() < this._stopWait) {
 				this.wait();
 				return 0;
@@ -282,7 +282,7 @@ TabHandler.prototype = {
 			}
 		}
 		else {
-			var canClose = this.canClose;
+			var canClose = this.canClose(browser);
 			if(!canClose) {
 				_log("Opened regular tab, ignore");
 				return 2;
@@ -367,14 +367,12 @@ TabHandler.prototype = {
 			Components.utils.reportError(e);
 		}
 	},
-	get isLoading() {
-		var browser = this.browser;
+	isLoading: function(browser) {
 		return !browser.currentURI
 			|| !browser.webProgress
 			|| browser.webProgress.isLoadingDocument;
 	},
-	get canClose() {
-		var browser = this.browser;
+	canClose: function(browser) {
 		if(prefs.hasKey(browser.contentDocument.documentURI)) {
 			// Forbid any redirects
 			var ds = browser.docShell;
@@ -491,7 +489,7 @@ TabHandler.prototype = {
 		var gBrowser = this.gBrowser;
 		var browser = this.browser;
 
-		if(this.isLoading) {
+		if(this.isLoading(browser)) {
 			var now = Date.now();
 			if(!this._stopCloseWait) {
 				this._stopCloseWait = now + this._maxLoadingWait;
@@ -504,7 +502,7 @@ TabHandler.prototype = {
 			}
 		}
 
-		if(browser.currentURI.spec == "about:blank" || this.canClose) {
+		if(browser.currentURI.spec == "about:blank" || this.canClose(browser)) {
 			tab.closing = false;
 			if(!this.hasSingleTab(gBrowser)) try {
 				gBrowser.removeTab(tab);
