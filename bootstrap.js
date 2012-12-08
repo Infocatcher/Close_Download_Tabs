@@ -565,23 +565,34 @@ var prefs = {
 	_keys: { __proto__: null },
 	_keyPrefs: [],
 	watchKeys: function() {
-		var keys = this._keyPrefs = this.get("closeURIPrefs", "").split("|");
-		keys.forEach(function(pref) {
-			Services.prefs.addObserver(pref, this, false);
+		var branch = "closeURI.pref.";
+		var keys = this._keyPrefs = Services.prefs.getBranch(this.ns + branch)
+			.getChildList("", {})
+			.filter(function(pName) {
+				return this.get(branch + pName);
+			}, this);
+		keys.forEach(function(pName) {
+			//_log('Add prefs observer for "' + pName + '"');
+			Services.prefs.addObserver(pName, this, false);
 		}, this);
 	},
 	unwatchKeys: function() {
-		this._keyPrefs.forEach(function(pref) {
-			Services.prefs.removeObserver(pref, this);
+		this._keyPrefs.forEach(function(pName) {
+			//_log('Remove prefs observer for "' + pName + '"');
+			Services.prefs.removeObserver(pName, this);
 		}, this);
 	},
-	addKey: function(key) {
+	addKey: function(key, _source) {
+		if(!key)
+			return;
+		_log("Mark tab as empty:\nPref: " + _source + "\nURI: " + key);
 		var keys = this._keys;
 		if(key in keys)
 			cancelTimer(keys[key]);
 		keys[key] = timer(function() {
 			delete keys[key];
-		}, this, this.get("closeURIExpire", 10e3));
+			_log("URI expired:\nPref: " + _source + "\nURI: " + key);
+		}, this, this.get("closeURI.expire", 10e3));
 	},
 	hasKey: function(key) {
 		return key in this._keys;
@@ -591,12 +602,12 @@ var prefs = {
 			return;
 		var pVal = this.getPref(pName);
 		if(this._keyPrefs.indexOf(pName) != -1) {
-			pVal && this.addKey(pVal);
+			this.addKey(pVal, pName);
 			return;
 		}
 		var shortName = pName.substr(this.ns.length);
 		this._cache[shortName] = pVal;
-		if(shortName == "closeURIPrefs") {
+		if(shortName.substr(0, 14) == "closeURI.pref.") {
 			this.unwatchKeys();
 			this.watchKeys();
 		}
