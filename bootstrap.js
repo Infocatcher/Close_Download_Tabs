@@ -322,32 +322,16 @@ TabHandler.prototype = {
 			this.unSelectTab();
 		}
 
-		var tabLabel = tab.getAttribute("label") || "";
-		var newLabel = "[Closed by Close Download Tabs]" + (tabLabel ? " " + tabLabel : "");
-
-		// We can't undo close tab, so try make it empty (empty tabs aren't saved!)
-		if(canClose) {
-			window.setTimeout(function() {
-				tab.setAttribute("label", newLabel);
-			}, 100);
-			this.makeTabEmpty(tab);
-		}
-
-		_info("Hide tab" + (canClose ? " (not empty)" : "") + ": " + tabLabel.substr(0, 256));
 		// We can't save file w/o tab :(
 		// And Panorama still show this tab
-		tab.setAttribute(windowsObserver.closedAttr, "true");
-		windowsObserver.persistTabAttributeOnce();
-		tab.setAttribute("collapsed", "true");
-		tab.setAttribute("label", newLabel);
-		tab.closing = true; // See "visibleTabs" getter in chrome://browser/content/tabbrowser.xml
-		window.addEventListener("TabSelect", this, false);
+		this.hideTab(tab, canClose);
 
 		window.addEventListener("unload", this, false); //~ todo: tab closed, but can be restored :(
 		window.setTimeout(this.delayedClose.bind(this), this._waitDownload);
 		return 1;
 	},
 	makeTabEmpty: function(tab) {
+		// Empty tabs aren't saved in undo close history
 		// Based on code from Multiple Tab Handler extension
 		// https://addons.mozilla.org/firefox/addon/multiple-tab-handler/
 		// chrome://multipletab/content/multipletab.js -> makeTabBlank()
@@ -366,6 +350,7 @@ TabHandler.prototype = {
 			delete browser.__SS_data;
 			delete browser.__SS_formDataSaved;
 			delete browser.__SS_hostSchemeData;
+			_log("Make tab empty " + (tab.getAttribute("label") || "").substr(0, 256));
 		}
 		catch(e) {
 			Components.utils.reportError(LOG_PREFIX + "Can't make tab empty");
@@ -516,6 +501,28 @@ TabHandler.prototype = {
 			this.showTab(tab);
 		}
 		this.destroy();
+	},
+	hideTab: function(tab, makeEmpty) {
+		var window = this.window;
+		var tabLabel = tab.getAttribute("label") || "";
+		var newLabel = "[Closed by Close Download Tabs]" + (tabLabel ? " " + tabLabel : "");
+
+		// We can't undo close tab, so try make it empty (empty tabs aren't saved!)
+		if(makeEmpty) {
+			window.setTimeout(function() {
+				tab.setAttribute("label", newLabel);
+			}, 100);
+			this.makeTabEmpty(tab);
+		}
+
+		tab.setAttribute(windowsObserver.closedAttr, "true");
+		windowsObserver.persistTabAttributeOnce();
+		tab.setAttribute("collapsed", "true");
+		tab.setAttribute("label", newLabel);
+		tab.closing = true; // See "visibleTabs" getter in chrome://browser/content/tabbrowser.xml
+
+		window.addEventListener("TabSelect", this, false);
+		_info("Hide tab" + (makeEmpty ? " (not empty)" : "") + ": " + tabLabel.substr(0, 256));
 	},
 	showTab: function(tab) {
 		// Open in Browser extension https://addons.mozilla.org/firefox/addon/open-in-browser/ ?
