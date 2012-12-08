@@ -353,6 +353,11 @@ TabHandler.prototype = {
 		// chrome://multipletab/content/multipletab.js -> makeTabBlank()
 		try {
 			var browser = tab.linkedBrowser;
+			if("docShell" in browser) {
+				// Force forbid any redirects
+				var ds = browser.docShell;
+				ds.allowJavascript = ds.allowMetaRedirects = false;
+			}
 			browser.loadURI("about:blank");
 			var sh = browser.sessionHistory;
 			if(sh instanceof Components.interfaces.nsISHistory)
@@ -373,13 +378,7 @@ TabHandler.prototype = {
 			|| browser.webProgress.isLoadingDocument;
 	},
 	canClose: function(browser) {
-		if(prefs.hasKey(browser.contentDocument.documentURI)) {
-			// Forbid any redirects
-			var ds = browser.docShell;
-			ds.allowJavascript = ds.allowMetaRedirects = false;
-			return true;
-		}
-		return false;
+		return browser.contentDocument && prefs.hasKey(browser.contentDocument.documentURI);
 	},
 	delayedClose: function() {
 		var ws = Services.wm.getEnumerator(null);
