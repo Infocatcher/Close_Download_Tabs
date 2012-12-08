@@ -13,6 +13,7 @@ pref("extensions.closedownloadtabs.waitDownloadAction", 1000);
 //   deletePref("<full_pref_name>"); // Don't save history :)
 pref("extensions.closedownloadtabs.closeURI.pref.extensions.greasemonkey.scriptvals.dev/null/Direct Links.closeURI", true);
 pref("extensions.closedownloadtabs.closeURI.pref.greasemonkey.scriptvals.dev/null/Direct Links.closeURI", true);
+pref("extensions.closedownloadtabs.closeURI.pref.extensions.scriptish.scriptvals.DirectLinks@devnull.closeURI", true);
 pref("extensions.closedownloadtabs.closeURI.expire", 10000);
 
 pref("extensions.closedownloadtabs.debug", 1); // 2 - all messages, 1 - only info, 0 - nothing
