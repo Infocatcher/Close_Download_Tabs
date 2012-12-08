@@ -489,7 +489,7 @@ TabHandler.prototype = {
 		if(browser.currentURI.spec == "about:blank" || this.canClose(browser)) {
 			tab.closing = false;
 			if(!this.hasSingleTab(gBrowser)) try {
-				gBrowser.removeTab(tab);
+				gBrowser.removeTab(tab, { animate: false });
 				_log("Close tab");
 			}
 			catch(e) {
