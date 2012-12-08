@@ -112,7 +112,7 @@ var windowsObserver = {
 		}
 	},
 
-	closedAttr: "__closeDownloadTabs__closed",
+	closedAttr: "closedownloadtabs-closed",
 	get ss() {
 		delete this.ss;
 		return this.ss = (
