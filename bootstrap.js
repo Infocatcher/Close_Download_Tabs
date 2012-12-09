@@ -581,7 +581,12 @@ TabHandler.prototype = {
 		if("TreeStyleTabService" in window) {
 			var tst = window.TreeStyleTabService;
 			var parentTab = tst.getParentTab(tab);
-			if(parentTab && tst.getChildTabs(parentTab).length == 1) {
+			if(
+				parentTab
+				&& !tst.getChildTabs(parentTab).filter(function(tab) {
+					return !tab.closing;
+				}).length
+			) {
 				var attr = tst.kCHILDREN;
 				if(parentTab.hasAttribute(attr)) {
 					parentTab.setAttribute("closedownloadtabs-backup-" + attr, parentTab.getAttribute(attr));
