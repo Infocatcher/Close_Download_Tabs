@@ -123,6 +123,13 @@ var windowsObserver = {
 	persistTabAttributeOnce: function() {
 		this.persistTabAttributeOnce = function() {};
 		this.ss.persistTabAttribute(this.closedAttr);
+	},
+
+	get hasAsyncFilePicker() {
+		var fp = Components.classes["@mozilla.org/filepicker;1"]
+			.createInstance(Components.interfaces.nsIFilePicker);
+		delete this.hasAsyncFilePicker;
+		return this.hasAsyncFilePicker = "open" in fp;
 	}
 };
 
@@ -460,6 +467,55 @@ TabHandler.prototype = {
 		return setProperty(this, "fixedCloseTab", this.closeTab.bind(this));
 	},
 	closeTab: function(e) {
+		var checkModalInterval = prefs.get("checkModalInterval", 1500);
+		if(e || !windowsObserver.hasAsyncFilePicker || checkModalInterval < 0) {
+			this._closeTab.apply(this, arguments);
+			return;
+		}
+
+		// Workaround for asynchronous nsIFilePicker.open()
+		// https://github.com/Infocatcher/Close_Download_Tabs/issues/1
+		//~ todo: not tested in Linux and Mac
+		var _this = this;
+		var window = this.window;
+		var document = window.document;
+		var cd = document.commandDispatcher;
+
+		var box = document.createElement("box");
+		box.id = "closeDownloadTabs-focus-tester-box";
+		box.style.cssText = "position: fixed !important; top: -2147483648px !important; left: -2147483648px !important;";
+		var iframe = document.createElement("iframe");
+		iframe.id = "closeDownloadTabs-focus-tester";
+		iframe.style.cssText = "width: 0 !important; height: 0 !important; min-width: 0 !important; min-height: 0 !important;";
+		iframe.setAttribute("src", "about:blank");
+		box.appendChild(iframe);
+		document.documentElement.appendChild(box);
+
+		function checkModal() {
+			_log("checkModal()...");
+			var fw = cd.focusedWindow;
+			var fe = cd.focusedElement;
+			iframe.contentWindow.focus();
+			fw && fw.focus();
+			fe && fe.focus();
+		}
+		function checkNotModal(e) {
+			var trg = e.originalTarget || e.target;
+			var trgDoc = trg.document || trg.ownerDocument || trg;
+			if(trgDoc != iframe.contentDocument)
+				return;
+			_log("Not modal!");
+			window.clearInterval(checkModalTimer);
+			window.removeEventListener(e.type, checkNotModal, true);
+			box.parentNode.removeChild(box);
+			_this._closeTab();
+		}
+		window.addEventListener("focus", checkNotModal, true);
+		var checkModalTimer = window.setInterval(checkModal, checkModalInterval);
+		_log("checkModal()");
+		checkModal();
+	},
+	_closeTab: function(e) {
 		var window = this.window;
 		e && window.removeEventListener("unload", this, false);
 

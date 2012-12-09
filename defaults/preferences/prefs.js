@@ -8,6 +8,8 @@ pref("extensions.closedownloadtabs.waitLoadedTab.greasemonkey", 1000); // Additi
 pref("extensions.closedownloadtabs.waitAfterStopProgress", 10); // Additional delay after STATE_STOP notification
 pref("extensions.closedownloadtabs.waitDownload", 2000); // Delay before tab will be closed (if there is now "locker windows")
 pref("extensions.closedownloadtabs.waitDownloadAction", 1000); // Wait after "locker window" will be closed
+pref("extensions.closedownloadtabs.checkModalInterval", 1500); // We don't remove tab, until opened modal dialog
+// See https://github.com/Infocatcher/Close_Download_Tabs/issues/1 for details
 
 // API for another extensions:
 // 1. Add extensions.closedownloadtabs.closeURI.pref.<full_pref_name> = true preference
