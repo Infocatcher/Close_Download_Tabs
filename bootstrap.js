@@ -337,18 +337,19 @@ TabHandler.prototype = {
 		window.setTimeout(this.delayedClose.bind(this), this._waitDownload);
 		return 1;
 	},
+	stopBrowser: function(browser) {
+		browser.stop();
+		if("docShell" in browser) {
+			var ds = browser.docShell;
+			ds.allowJavascript = ds.allowMetaRedirects = false;
+		}
+	},
 	makeTabEmpty: function(tab) {
-		// Empty tabs aren't saved in undo close history
 		// Based on code from Multiple Tab Handler extension
 		// https://addons.mozilla.org/firefox/addon/multiple-tab-handler/
 		// chrome://multipletab/content/multipletab.js -> makeTabBlank()
 		try {
 			var browser = tab.linkedBrowser;
-			if("docShell" in browser) {
-				// Force forbid any redirects
-				var ds = browser.docShell;
-				ds.allowJavascript = ds.allowMetaRedirects = false;
-			}
 			browser.loadURI("about:blank");
 			var sh = browser.sessionHistory;
 			if(sh instanceof Components.interfaces.nsISHistory)
@@ -546,14 +547,29 @@ TabHandler.prototype = {
 			}
 		}
 
-		if(browser.currentURI.spec == "about:blank" || this.canClose(browser)) {
+		var isEmpty = browser.currentURI.spec == "about:blank";
+		if(!isEmpty)
+			var canClose = this.canClose(browser);
+		if(isEmpty || canClose) {
 			tab.closing = false;
-			if(!this.hasSingleTab(gBrowser)) try {
-				gBrowser.removeTab(tab, { animate: false });
-				_log("Close tab");
-			}
-			catch(e) {
-				Components.utils.reportError(e);
+			if(!this.hasSingleTab(gBrowser)) {
+				if(canClose) {
+					// Browser can't undo close destroyed tab, so try make it empty (empty tabs aren't saved!)
+					this.makeTabEmpty(tab);
+					window.setTimeout(function() {
+						gBrowser.removeTab(tab, { animate: false });
+						_log("Close emptied tab (delayed)");
+					}, prefs.get("closeURI.delay", 150));
+				}
+				else {
+					try {
+						gBrowser.removeTab(tab, { animate: false });
+					}
+					catch(e) {
+						Components.utils.reportError(e);
+					}
+					_log("Close tab");
+				}
 			}
 		}
 		else if(tab.closing) {
@@ -567,13 +583,8 @@ TabHandler.prototype = {
 		var tabLabel = tab.getAttribute("label") || "";
 		var newLabel = "[Closed by Close Download Tabs]" + (tabLabel ? " " + tabLabel : "");
 
-		// We can't undo close tab, so try make it empty (empty tabs aren't saved!)
-		if(makeEmpty) {
-			window.setTimeout(function() {
-				tab.setAttribute("label", newLabel);
-			}, 100);
-			this.makeTabEmpty(tab);
-		}
+		if(makeEmpty)
+			this.stopBrowser(tab.linkedBrowser);
 
 		tab.setAttribute(windowsObserver.closedAttr, "true");
 		windowsObserver.persistTabAttributeOnce();

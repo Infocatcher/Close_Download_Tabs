@@ -20,5 +20,8 @@ pref("extensions.closedownloadtabs.closeURI.pref.extensions.greasemonkey.scriptv
 pref("extensions.closedownloadtabs.closeURI.pref.greasemonkey.scriptvals.dev/null/Direct Links.closeURI", true);
 pref("extensions.closedownloadtabs.closeURI.pref.extensions.scriptish.scriptvals.DirectLinks@devnull.closeURI", true);
 pref("extensions.closedownloadtabs.closeURI.expire", 10000);
+pref("extensions.closedownloadtabs.closeURI.delay", 150); // Delay between makeTabEmpty() and removeTab()
+// We make tab empty to don't save it in undo close history.
+// And without delay wrong state (not yet emptied) may be saved.
 
 pref("extensions.closedownloadtabs.debug", 1); // 2 - all messages, 1 - only info, 0 - nothing
