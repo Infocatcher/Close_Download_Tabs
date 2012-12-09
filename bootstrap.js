@@ -370,7 +370,11 @@ TabHandler.prototype = {
 			|| browser.webProgress.isLoadingDocument;
 	},
 	canClose: function(browser) {
-		return browser.contentDocument && prefs.hasKey(browser.contentDocument.documentURI);
+		if("__closeDownloadTabs__canClose" in browser)
+			return true;
+		if(browser.contentDocument && prefs.hasKey(browser.contentDocument.documentURI))
+			return browser.__closeDownloadTabs__canClose = true;
+		return false;
 	},
 	delayedClose: function() {
 		var ws = Services.wm.getEnumerator(null);
