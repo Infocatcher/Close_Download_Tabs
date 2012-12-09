@@ -498,11 +498,14 @@ TabHandler.prototype = {
 
 		function checkModal() {
 			_log("checkModal()...");
+			var aw = Services.ww.activeWindow;
 			var fw = cd.focusedWindow;
 			var fe = cd.focusedElement;
 			iframe.contentWindow.focus();
 			fw && fw.focus();
 			fe && fe.focus();
+			if(aw && aw != window)
+				aw.focus();
 		}
 		function checkNotModal(e) {
 			var trg = e.originalTarget || e.target;
