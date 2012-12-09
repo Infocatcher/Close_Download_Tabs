@@ -1,6 +1,6 @@
 pref("extensions.closedownloadtabs.closeSelectedTab", true);
 pref("extensions.closedownloadtabs.maxLoadingWait", 150000); // 2.5*60e3, don't wait more than this time
-pref("extensions.closedownloadtabs.waitDelay", 500); // Interval to periodically check browser.webProgress.isLoadingDocument
+pref("extensions.closedownloadtabs.waitInterval", 500); // Interval to periodically check browser.webProgress.isLoadingDocument
 // Needs for custombutton://... links (https://addons.mozilla.org/firefox/addon/custom-buttons/)
 // and any other custom protocols with nsIProtocolHandler.URI_DOES_NOT_RETURN_DATA flag
 pref("extensions.closedownloadtabs.waitLoadedTab", 80); // Additional delay for about:neterror?..

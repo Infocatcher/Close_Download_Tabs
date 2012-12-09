@@ -158,7 +158,7 @@ TabHandler.prototype = {
 	},
 	init: function() {
 		this._maxLoadingWait     = prefs.get("maxLoadingWait",             2.5*60e3);
-		this._waitDelay          = prefs.get("waitDelay",                  500);
+		this._waitInterval       = prefs.get("waitInterval",               500);
 		this._waitLoaded         = prefs.get("waitLoadedTab",              80);
 		this._waitLoadedGM       = prefs.get("waitLoadedTab.greasemonkey", 1000);
 		this._waitStopProgress   = prefs.get("waitAfterStopProgress",      10);
@@ -242,7 +242,7 @@ TabHandler.prototype = {
 	},
 
 	wait: function(delay) {
-		this._waitTimer = this.window.setTimeout(this.fixedWait, delay || this._waitDelay);
+		this._waitTimer = this.window.setTimeout(this.fixedWait, delay || this._waitInterval);
 	},
 	stopWait: function() {
 		this.window.clearTimeout(this._waitTimer);
@@ -481,7 +481,7 @@ TabHandler.prototype = {
 				this.showTab(tab);
 			}
 			if(now < this._stopCloseWait) {
-				window.setTimeout(this.fixedCloseTab, this._waitDelay);
+				window.setTimeout(this.fixedCloseTab, this._waitInterval);
 				return;
 			}
 		}
