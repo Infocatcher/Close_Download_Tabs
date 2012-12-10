@@ -337,11 +337,25 @@ TabHandler.prototype = {
 		window.setTimeout(this.delayedClose.bind(this), this._waitDownload);
 		return 1;
 	},
-	stopBrowser: function(browser) {
+	suspendBrowser: function(browser) {
 		browser.stop();
-		if("docShell" in browser) {
+		if("docShell" in browser && !("__closeDownloadTabs__docShell" in browser)) {
 			var ds = browser.docShell;
+			browser.__closeDownloadTabs__docShell = {
+				allowJavascript:    ds.allowJavascript,
+				allowMetaRedirects: ds.allowMetaRedirects,
+				__proto__: null
+			};
 			ds.allowJavascript = ds.allowMetaRedirects = false;
+		}
+	},
+	resumeBrowser: function(browser) {
+		if("docShell" in browser && "__closeDownloadTabs__docShell" in browser) {
+			var ds = browser.docShell;
+			var origs = browser.__closeDownloadTabs__docShell;
+			delete browser.__closeDownloadTabs__docShell;
+			for(var p in origs)
+				ds[p] = origs[p];
 		}
 	},
 	makeTabEmpty: function(tab) {
@@ -589,7 +603,7 @@ TabHandler.prototype = {
 		var newLabel = "[Closed by Close Download Tabs]" + (tabLabel ? " " + tabLabel : "");
 
 		if(makeEmpty)
-			this.stopBrowser(tab.linkedBrowser);
+			this.suspendBrowser(tab.linkedBrowser);
 
 		tab.setAttribute(windowsObserver.closedAttr, "true");
 		windowsObserver.persistTabAttributeOnce();
@@ -619,6 +633,10 @@ TabHandler.prototype = {
 	},
 	showTab: function(tab) {
 		// Open in Browser extension https://addons.mozilla.org/firefox/addon/open-in-browser/ ?
+		var browser = tab.linkedBrowser;
+		delete browser.__closeDownloadTabs__canClose;
+		this.resumeBrowser(browser);
+
 		tab.closing = false;
 		tab.removeAttribute(windowsObserver.closedAttr);
 		tab.removeAttribute("collapsed");
