@@ -179,6 +179,7 @@ TabHandler.prototype = {
 		//_log("TabHandler.addProgressListener()");
 	},
 	destroy: function() {
+		this.window.removeEventListener("unload", this, false);
 		this.window.removeEventListener("TabSelect", this, false);
 		this.destroyProgress();
 		this.window = this.tab = this.prevTab = this.gBrowser = this.browser = null;
@@ -548,7 +549,8 @@ TabHandler.prototype = {
 	},
 	_closeTab: function(e) {
 		var window = this.window;
-		e && window.removeEventListener("unload", this, false);
+		var isUnload = !!e;
+		//e && window.removeEventListener(e.type, this, false);
 
 		var tab = this.tab;
 		if(!tab.parentNode) { // Already closed
@@ -568,7 +570,8 @@ TabHandler.prototype = {
 				this.showTab(tab);
 			}
 			if(now < this._stopCloseWait) {
-				window.setTimeout(this.fixedCloseTab, this._waitInterval);
+				if(!isUnload)
+					window.setTimeout(this.fixedCloseTab, this._waitInterval);
 				return;
 			}
 		}
@@ -579,9 +582,9 @@ TabHandler.prototype = {
 		if(isEmpty || canClose) {
 			tab.closing = false;
 			if(!this.hasSingleTab(gBrowser)) {
-				if(canClose) {
-					// Browser can't undo close destroyed tab, so try make it empty (empty tabs aren't saved!)
+				if(canClose) // Browser can't undo close destroyed tab, so try make it empty (empty tabs aren't saved!)
 					this.makeTabEmpty(tab);
+				if(canClose && !isUnload) {
 					window.setTimeout(function() {
 						gBrowser.removeTab(tab, { animate: false });
 						_log("Close emptied tab (delayed)");
