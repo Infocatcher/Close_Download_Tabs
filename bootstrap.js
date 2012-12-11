@@ -639,7 +639,12 @@ TabHandler.prototype = {
 				}
 			}
 		}
+
 		_info("Hide tab" + (makeEmpty ? " (not empty)" : "") + ": " + tabLabel.substr(0, 256));
+
+		var evt = tab.ownerDocument.createEvent("Events");
+		evt.initEvent("CloseDownloadTabs:TabHide", true, false);
+		tab.dispatchEvent(evt);
 	},
 	showTab: function(tab) {
 		// Open in Browser extension https://addons.mozilla.org/firefox/addon/open-in-browser/ ?
@@ -669,6 +674,10 @@ TabHandler.prototype = {
 				}
 			}
 		}
+
+		var evt = tab.ownerDocument.createEvent("Events");
+		evt.initEvent("CloseDownloadTabs:TabShow", true, false);
+		tab.dispatchEvent(evt);
 	},
 	getString: function(id) {
 		try {
