@@ -625,8 +625,8 @@ TabHandler.prototype = {
 		tab.setAttribute("collapsed", "true");
 		tab.setAttribute("label", newLabel);
 		tab.closing = true; // See "visibleTabs" getter in chrome://browser/content/tabbrowser.xml
-
 		window.addEventListener("TabSelect", this, false);
+
 		if("TreeStyleTabService" in window) {
 			var tst = window.TreeStyleTabService;
 			var parentTab = tst.getParentTab(tab);
@@ -666,8 +666,9 @@ TabHandler.prototype = {
 		tab.removeAttribute("collapsed");
 		if(tab == this.origTab)
 			gBrowser.selectedTab = tab;
-
 		var window = this.window;
+		window.removeEventListener("TabSelect", this, false);
+
 		if("TreeStyleTabService" in window) {
 			var tst = window.TreeStyleTabService;
 			var parentTab = tst.getParentTab(tab);
