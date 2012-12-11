@@ -326,7 +326,7 @@ TabHandler.prototype = {
 		if(gBrowser.selectedTab == tab) {
 			if(!prefs.get("closeSelectedTab", true))
 				return 2;
-			this.unSelectTab();
+			this.unSelectTab(tab);
 		}
 
 		// We can't save file w/o tab :(
@@ -433,16 +433,14 @@ TabHandler.prototype = {
 		}
 		return false;
 	},
-	unSelectTab: function() {
-		var tab = this.tab;
+	unSelectTab: function(tab) {
 		var gBrowser = this.gBrowser;
-
 		var selectedTab = gBrowser.selectedTab;
 		if(selectedTab != tab)
 			return;
 		var prevTab = this.prevTab;
 		if(prevTab == selectedTab || !this.tabVisible(prevTab))
-			prevTab = this.getNearestTab(tab);
+			prevTab = this.getOwnerTab(tab) || this.getNearestTab(tab);
 		if(prevTab) {
 			this.origTab = tab;
 			gBrowser.selectedTab = prevTab;
@@ -465,6 +463,13 @@ TabHandler.prototype = {
 		e.stopPropagation();
 		this.gBrowser.selectedTab = t;
 	},
+	getOwnerTab: function(tab) {
+		// See <method name="_blurTab"> in chrome://browser/content/tabbrowser.xml
+		var owner = "owner" in tab && tab.owner;
+		if(owner && this.tabVisible(owner))
+			return owner;
+		return null;
+	},
 	getNearestTab: function(tab) {
 		return this.getSiblingTab(tab, "nextSibling") || this.getSiblingTab(tab, "previousSibling");
 	},
@@ -475,8 +480,10 @@ TabHandler.prototype = {
 		return null;
 	},
 	tabVisible: function(tab) {
+		if(tab.hidden || tab.closing)
+			return false;
 		var bo = tab.boxObject;
-		return bo.width > 0 && bo.height > 0 && !tab.closing;
+		return bo.width > 0 && bo.height > 0;
 	},
 	hasSingleTab: function(gBrowser) {
 		var tabs = gBrowser.visibleTabs || gBrowser.tabs || gBrowser.tabContainer.childNodes;
