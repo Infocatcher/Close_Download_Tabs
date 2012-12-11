@@ -617,6 +617,11 @@ TabHandler.prototype = {
 
 		tab.setAttribute(windowsObserver.closedAttr, "true");
 		windowsObserver.persistTabAttributeOnce();
+
+		var gBrowser = this.gBrowser;
+		if("hideTab" in gBrowser)
+			gBrowser.hideTab(tab);
+
 		tab.setAttribute("collapsed", "true");
 		tab.setAttribute("label", newLabel);
 		tab.closing = true; // See "visibleTabs" getter in chrome://browser/content/tabbrowser.xml
@@ -652,11 +657,15 @@ TabHandler.prototype = {
 		delete browser.__closeDownloadTabs__canClose;
 		this.resumeBrowser(browser);
 
+		var gBrowser = this.gBrowser;
+		if("showTab" in gBrowser)
+			gBrowser.showTab(tab);
+
 		tab.closing = false;
 		tab.removeAttribute(windowsObserver.closedAttr);
 		tab.removeAttribute("collapsed");
 		if(tab == this.origTab)
-			this.gBrowser.selectedTab = tab;
+			gBrowser.selectedTab = tab;
 
 		var window = this.window;
 		if("TreeStyleTabService" in window) {
