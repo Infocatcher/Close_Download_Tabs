@@ -7,7 +7,7 @@
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>Close Download Tabs</em:name>
-		<em:version>0.1.0a21pre</em:version>
+		<em:version>0.1.0a21</em:version>
 		<em:description>Automatically close new tabs with downloadable links</em:description>
 		<em:creator>Infocatcher</em:creator>
 		<em:contributor>Icon: modified Nuvola (http://icon-king.com/projects/nuvola/) + Carpelinx (http://www.grafixport.org/)</em:contributor>
