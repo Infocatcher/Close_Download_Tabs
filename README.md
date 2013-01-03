@@ -15,7 +15,7 @@ See notes about _extensions.closedownloadtabs.closeURI.pref.*_ in [defaults/pref
 Also you can use “CloseDownloadTabs:TabHide” and “CloseDownloadTabs:TabShow” events (and built-in “[TabHide](https://developer.mozilla.org/en-US/docs/Mozilla_event_reference/TabHide)”/“[TabShow](https://developer.mozilla.org/en-US/docs/Mozilla_event_reference/TabShow)”), example:
 ```javascript
 function logger(e) {
-  var tab = e.target;
+	var tab = e.target;
 	Services.console.logStringMessage(
 		e.type
 		+ "\nLabel: " + tab.getAttribute("label")
