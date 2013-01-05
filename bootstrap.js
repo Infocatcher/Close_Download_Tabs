@@ -618,14 +618,11 @@ TabHandler.prototype = {
 		tab.setAttribute(windowsObserver.closedAttr, "true");
 		windowsObserver.persistTabAttributeOnce();
 
-		var gBrowser = this.gBrowser;
-		if("hideTab" in gBrowser)
-			gBrowser.hideTab(tab);
-
 		tab.setAttribute("collapsed", "true");
 		tab.setAttribute("label", newLabel);
 		tab.closing = true; // See "visibleTabs" getter in chrome://browser/content/tabbrowser.xml
 		window.addEventListener("TabSelect", this, false);
+		this.updateTabsVisibility();
 
 		if("TreeStyleTabService" in window) try {
 			var tst = window.TreeStyleTabService;
@@ -660,17 +657,14 @@ TabHandler.prototype = {
 		delete browser.__closeDownloadTabs__canClose;
 		this.resumeBrowser(browser);
 
-		var gBrowser = this.gBrowser;
-		if("showTab" in gBrowser)
-			gBrowser.showTab(tab);
-
 		tab.closing = false;
 		tab.removeAttribute(windowsObserver.closedAttr);
 		tab.removeAttribute("collapsed");
 		if(tab == this.origTab)
-			gBrowser.selectedTab = tab;
+			this.gBrowser.selectedTab = tab;
 		var window = this.window;
 		window.removeEventListener("TabSelect", this, false);
+		this.updateTabsVisibility();
 
 		if("TreeStyleTabService" in window) try {
 			var tst = window.TreeStyleTabService;
@@ -694,6 +688,20 @@ TabHandler.prototype = {
 		var evt = tab.ownerDocument.createEvent("Events");
 		evt.initEvent("CloseDownloadTabs:TabShow", true, false);
 		tab.dispatchEvent(evt);
+	},
+	updateTabsVisibility: function() {
+		// See <method name="showTab"> and <method name="hideTab">
+		// in chrome://browser/content/tabbrowser.xml
+		var gBrowser = this.gBrowser;
+		try {
+			if("_visibleTabs" in gBrowser)
+				gBrowser._visibleTabs = null; // invalidate cache
+			if("tabContainer" in gBrowser && "adjustTabstrip" in gBrowser.tabContainer)
+				gBrowser.tabContainer.adjustTabstrip();
+		}
+		catch(e) {
+			Components.utils.reportError(e);
+		}
 	},
 	getString: function(id) {
 		try {

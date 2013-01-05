@@ -12,7 +12,7 @@ See _extensions.closedownloadtabs.*_ in about:config
 See notes about _extensions.closedownloadtabs.closeURI.pref.*_ in [defaults/preferences/prefs.js](/Infocatcher/Close_Download_Tabs/blob/master/defaults/preferences/prefs.js#files)
 <br>Example: [direct_links.user.js](/Infocatcher/UserScripts/blob/62ddfe043ac807ceea3fe374c00dda3dcde16447/Direct_Links/direct_links.user.js#L70) for [Greasemonkey](https://addons.mozilla.org/firefox/addon/greasemonkey/)
 
-Also you can use “CloseDownloadTabs:TabHide” and “CloseDownloadTabs:TabShow” events (and built-in “[TabHide](https://developer.mozilla.org/en-US/docs/Mozilla_event_reference/TabHide)”/“[TabShow](https://developer.mozilla.org/en-US/docs/Mozilla_event_reference/TabShow)”), example:
+Also you can use “CloseDownloadTabs:TabHide” and “CloseDownloadTabs:TabShow” events, example:
 ```javascript
 function logger(e) {
 	var tab = e.target;
@@ -25,6 +25,4 @@ function logger(e) {
 }
 window.addEventListener("CloseDownloadTabs:TabHide", logger, false);
 window.addEventListener("CloseDownloadTabs:TabShow", logger, false);
-window.addEventListener("TabHide", logger, false);
-window.addEventListener("TabShow", logger, false);
 ```
