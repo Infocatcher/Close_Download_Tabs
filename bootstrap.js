@@ -42,8 +42,8 @@ var windowsObserver = {
 		var ws = Services.wm.getEnumerator("navigator:browser");
 		while(ws.hasMoreElements())
 			this.initWindow(ws.getNext(), reason);
-
 		Services.ww.registerNotification(this);
+
 		if(reason != APP_STARTUP)
 			prefs.init();
 	},
@@ -55,8 +55,14 @@ var windowsObserver = {
 		var ws = Services.wm.getEnumerator("navigator:browser");
 		while(ws.hasMoreElements())
 			this.destroyWindow(ws.getNext(), reason);
-
 		Services.ww.unregisterNotification(this);
+
+		for(var id in this._handlers) {
+			_log("Destroy not yet destroyed handler #" + id);
+			this._handlers[id].destroy();
+		}
+		this._handlers = { __proto__: null };
+
 		prefs.destroy();
 	},
 
@@ -100,6 +106,8 @@ var windowsObserver = {
 		return window.document.documentElement.getAttribute("windowtype") == "navigator:browser";
 	},
 
+	_handlerId: -1,
+	_handlers: { __proto__: null },
 	tabOpenHandler: function(e) {
 		var tab = e.originalTarget || e.target;
 		new TabHandler(tab);
@@ -139,11 +147,15 @@ function TabHandler(tab) {
 	var gBrowser = this.gBrowser = window.gBrowser;
 	this.prevTab = gBrowser.selectedTab;
 	this.browser = tab.linkedBrowser;
-	this.check() && this.init();
+	if(this.check())
+		this.init();
+	else
+		this.cleanup();
 }
 TabHandler.prototype = {
 	wo: windowsObserver,
 
+	id: -1,
 	origTab: null,
 	_stop: false,
 	_hasProgressListener: false,
@@ -165,6 +177,10 @@ TabHandler.prototype = {
 		return true;
 	},
 	init: function() {
+		var wo = this.wo;
+		var id = this.id = ++wo._handlerId;
+		wo._handlers[id] = this;
+
 		this._maxLoadingWait     = prefs.get("maxLoadingWait",             2.5*60e3);
 		this._waitInterval       = prefs.get("waitInterval",               500);
 		this._waitLoaded         = prefs.get("waitLoadedTab",              80);
@@ -188,7 +204,7 @@ TabHandler.prototype = {
 		this.window.removeEventListener("unload", this, false);
 		this.window.removeEventListener("TabSelect", this, false);
 		this.destroyProgress();
-		this.window = this.tab = this.prevTab = this.gBrowser = this.browser = null;
+		this.cleanup(true);
 		_log("TabHandler.destroy()");
 	},
 	destroyProgress: function() {
@@ -197,6 +213,11 @@ TabHandler.prototype = {
 			this.browser.removeProgressListener(this);
 			_log("TabHandler.removeProgressListener()");
 		}
+	},
+	cleanup: function(removeHandler) {
+		this.window = this.tab = this.prevTab = this.gBrowser = this.browser = null;
+		if(removeHandler)
+			delete this.wo._handlers[this.id];
 	},
 	handleEvent: function(e) {
 		switch(e.type) {
