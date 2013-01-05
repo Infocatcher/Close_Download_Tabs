@@ -704,7 +704,7 @@ TabHandler.prototype = {
 };
 
 var prefs = {
-	ns: "extensions.closedownloadtabs.",
+	ns: "extensions.closeDownloadTabs.",
 	initialized: false,
 	init: function() {
 		if(this.initialized)
