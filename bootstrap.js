@@ -147,7 +147,6 @@ TabHandler.prototype = {
 	_hasProgressListener: false,
 	_waitedLoad: false,
 	_waitTimer: 0,
-	_stopCloseWait: 0,
 
 	check: function() {
 		// See "addTab" method in chrome://browser/content/tabbrowser.xml
@@ -171,12 +170,17 @@ TabHandler.prototype = {
 		this._waitStopProgress   = prefs.get("waitAfterStopProgress",      10);
 		this._waitDownload       = prefs.get("waitDownload",               2000);
 		this._waitDownloadAction = prefs.get("waitDownloadAction",         1000);
-		this._stopWait = Date.now() + this._maxLoadingWait;
 
+		this.startWait();
+	},
+	startWait: function() {
+		this._stopWait = Date.now() + this._maxLoadingWait;
 		this.wait();
-		this.browser.addProgressListener(this);
-		this._hasProgressListener = true;
-		//_log("TabHandler.addProgressListener()");
+		if(!this._hasProgressListener) {
+			this._hasProgressListener = true;
+			this.browser.addProgressListener(this);
+			//_log("TabHandler.addProgressListener()");
+		}
 	},
 	destroy: function() {
 		this.window.removeEventListener("unload", this, false);
@@ -490,9 +494,6 @@ TabHandler.prototype = {
 		var tabs = gBrowser.visibleTabs || gBrowser.tabs || gBrowser.tabContainer.childNodes;
 		return tabs.length <= 1;
 	},
-	get fixedCloseTab() {
-		return setProperty(this, "fixedCloseTab", this.closeTab.bind(this));
-	},
 	closeTab: function(e) {
 		var checkModalInterval = prefs.get("checkModalInterval", 1500);
 		if(e || !windowsObserver.hasAsyncFilePicker || checkModalInterval < 0) {
@@ -563,17 +564,10 @@ TabHandler.prototype = {
 		var browser = this.browser;
 
 		if(this.isLoading(browser)) {
-			var now = Date.now();
-			if(!this._stopCloseWait) {
-				this._stopCloseWait = now + this._maxLoadingWait;
-				_info('Tab state was changed to "loading" => show tab');
-				this.showTab(tab);
-			}
-			if(now < this._stopCloseWait) {
-				if(!isUnload)
-					window.setTimeout(this.fixedCloseTab, this._waitInterval);
-				return;
-			}
+			_info('Tab state was changed to "loading" => show tab and wait again...');
+			this.showTab(tab);
+			this.startWait();
+			return;
 		}
 
 		var isEmpty = browser.currentURI.spec == "about:blank";
