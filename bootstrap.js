@@ -627,7 +627,7 @@ TabHandler.prototype = {
 		tab.closing = true; // See "visibleTabs" getter in chrome://browser/content/tabbrowser.xml
 		window.addEventListener("TabSelect", this, false);
 
-		if("TreeStyleTabService" in window) {
+		if("TreeStyleTabService" in window) try {
 			var tst = window.TreeStyleTabService;
 			var parentTab = tst.getParentTab(tab);
 			if(
@@ -643,6 +643,9 @@ TabHandler.prototype = {
 					_log("Hide Tree Style Tab's twisty");
 				}
 			}
+		}
+		catch(e) {
+			Components.utils.reportError(e);
 		}
 
 		_info("Hide tab" + (makeEmpty ? " (not empty)" : "") + ": " + tabLabel.substr(0, 256));
@@ -669,7 +672,7 @@ TabHandler.prototype = {
 		var window = this.window;
 		window.removeEventListener("TabSelect", this, false);
 
-		if("TreeStyleTabService" in window) {
+		if("TreeStyleTabService" in window) try {
 			var tst = window.TreeStyleTabService;
 			var parentTab = tst.getParentTab(tab);
 			if(parentTab) {
@@ -683,6 +686,9 @@ TabHandler.prototype = {
 					parentTab.removeAttribute(bakAttr);
 				}
 			}
+		}
+		catch(e) {
+			Components.utils.reportError(e);
 		}
 
 		var evt = tab.ownerDocument.createEvent("Events");
