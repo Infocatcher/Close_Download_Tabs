@@ -142,6 +142,8 @@ function TabHandler(tab) {
 	this.check() && this.init();
 }
 TabHandler.prototype = {
+	wo: windowsObserver,
+
 	origTab: null,
 	_stop: false,
 	_hasProgressListener: false,
@@ -496,7 +498,7 @@ TabHandler.prototype = {
 	},
 	closeTab: function(e) {
 		var checkModalInterval = prefs.get("checkModalInterval", 1500);
-		if(e || !windowsObserver.hasAsyncFilePicker || checkModalInterval < 0) {
+		if(e || !this.wo.hasAsyncFilePicker || checkModalInterval < 0) {
 			this._closeTab.apply(this, arguments);
 			return;
 		}
@@ -609,8 +611,8 @@ TabHandler.prototype = {
 		if(makeEmpty)
 			this.suspendBrowser(tab.linkedBrowser);
 
-		tab.setAttribute(windowsObserver.closedAttr, "true");
-		windowsObserver.persistTabAttributeOnce();
+		tab.setAttribute(this.wo.closedAttr, "true");
+		this.wo.persistTabAttributeOnce();
 
 		tab.setAttribute("collapsed", "true");
 		tab.setAttribute("label", newLabel);
@@ -652,7 +654,7 @@ TabHandler.prototype = {
 		this.resumeBrowser(browser);
 
 		tab.closing = false;
-		tab.removeAttribute(windowsObserver.closedAttr);
+		tab.removeAttribute(this.wo.closedAttr);
 		tab.removeAttribute("collapsed");
 		if(tab == this.origTab)
 			this.gBrowser.selectedTab = tab;
