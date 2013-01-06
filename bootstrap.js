@@ -59,7 +59,7 @@ var windowsObserver = {
 
 		for(var id in this._handlers) {
 			_log("Destroy not yet destroyed handler #" + id);
-			this._handlers[id].destroy();
+			this._handlers[id].destroy(reason);
 		}
 		this._handlers = { __proto__: null };
 
@@ -200,10 +200,19 @@ TabHandler.prototype = {
 			//_log("TabHandler.addProgressListener()");
 		}
 	},
-	destroy: function() {
+	destroy: function(reason) {
 		this.window.removeEventListener("unload", this, false);
 		this.window.removeEventListener("TabSelect", this, false);
 		this.destroyProgress();
+		if("destroyModalChecker" in this)
+			this.destroyModalChecker();
+		if(reason) {
+			var tab = this.tab;
+			if(tab.hasAttribute(this.wo.closedAttr)) {
+				_log("Try restore not yet closed tab");
+				this.showTab(tab);
+			}
+		}
 		this.cleanup(true);
 		_log("TabHandler.destroy()");
 	},
@@ -561,13 +570,19 @@ TabHandler.prototype = {
 			if(trgDoc != iframe.contentDocument)
 				return;
 			_log("Not modal!");
-			window.clearInterval(checkModalTimer);
-			window.removeEventListener(e.type, checkNotModal, true);
-			box.parentNode.removeChild(box);
+			destroyModalChecker();
 			_this._closeTab();
+		}
+		function destroyModalChecker() {
+			window.clearInterval(checkModalTimer);
+			window.removeEventListener("focus", checkNotModal, true);
+			box.parentNode.removeChild(box);
+			delete _this.destroyModalChecker;
+			_log("destroyModalChecker()");
 		}
 		window.addEventListener("focus", checkNotModal, true);
 		var checkModalTimer = window.setInterval(checkModal, checkModalInterval);
+		this.destroyModalChecker = destroyModalChecker;
 		_log("checkModal()");
 		checkModal();
 	},
@@ -624,10 +639,11 @@ TabHandler.prototype = {
 		}
 		this.destroy();
 	},
+	closedTabPrefix: "[Closed by Close Download Tabs]",
 	hideTab: function(tab, makeEmpty) {
 		var window = this.window;
 		var tabLabel = tab.getAttribute("label") || "";
-		var newLabel = "[Closed by Close Download Tabs]" + (tabLabel ? " " + tabLabel : "");
+		var newLabel = this.closedTabPrefix + (tabLabel ? " " + tabLabel : "");
 
 		if(makeEmpty)
 			this.suspendBrowser(tab.linkedBrowser);
@@ -670,9 +686,20 @@ TabHandler.prototype = {
 	},
 	showTab: function(tab) {
 		// Open in Browser extension https://addons.mozilla.org/firefox/addon/open-in-browser/ ?
+		if(!tab.parentNode || !tab.linkedBrowser) {
+			_info("showTab(): looks like tab already removed");
+			return;
+		}
 		var browser = tab.linkedBrowser;
 		delete browser.__closeDownloadTabs__canClose;
 		this.resumeBrowser(browser);
+
+		var tabLabel = tab.getAttribute("label") || "";
+		var prefix = this.closedTabPrefix;
+		if(tabLabel.substr(0, prefix.length) == prefix) {
+			tabLabel = tabLabel.substr(prefix.length).replace(/^ /, "");
+			tab.setAttribute("label", tabLabel);
+		}
 
 		tab.closing = false;
 		tab.removeAttribute(this.wo.closedAttr);
