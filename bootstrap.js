@@ -142,15 +142,20 @@ var windowsObserver = {
 };
 
 function TabHandler(tab) {
+	var window = tab.ownerDocument.defaultView;
+	var gBrowser = window.gBrowser;
+	if(this.isEmptyTab(tab, gBrowser)) {
+		_log("Opened tab are empty, ignore");
+		return;
+	}
+	_log("Opened new tab: " + (tab.getAttribute("label") || "").substr(0, 256));
+
 	this.tab = tab;
-	var window = this.window = tab.ownerDocument.defaultView;
-	var gBrowser = this.gBrowser = window.gBrowser;
+	this.window = window;
+	this.gBrowser = gBrowser;
 	this.prevTab = gBrowser.selectedTab;
 	this.browser = tab.linkedBrowser;
-	if(this.check())
-		this.init();
-	else
-		this.cleanup();
+	this.init();
 }
 TabHandler.prototype = {
 	wo: windowsObserver,
@@ -162,20 +167,6 @@ TabHandler.prototype = {
 	_waitedLoad: false,
 	_waitTimer: 0,
 
-	check: function() {
-		// See "addTab" method in chrome://browser/content/tabbrowser.xml
-		var tabLabel = this.tab.getAttribute("label") || "";
-		_log("Opened new tab: " + tabLabel.substr(0, 256));
-		if(!tabLabel || tabLabel == "undefined" || tabLabel == "about:blank")
-			return false;
-		if(!/^\w+:\S*$/.test(tabLabel)) { // We should check tab label for SeaMonkey and old Firefox
-			if(tabLabel == (this.getString("tabs.emptyTabTitle") || this.getString("tabs.untitled"))) {
-				_log("Opened tab are empty, ignore");
-				return false;
-			}
-		}
-		return true;
-	},
 	init: function() {
 		var wo = this.wo;
 		var id = this.id = ++wo._handlerId;
@@ -213,7 +204,8 @@ TabHandler.prototype = {
 				this.showTab(tab);
 			}
 		}
-		this.cleanup(true);
+		this.window = this.tab = this.prevTab = this.gBrowser = this.browser = null;
+		delete this.wo._handlers[this.id];
 		_log("TabHandler.destroy()");
 	},
 	destroyProgress: function() {
@@ -223,16 +215,32 @@ TabHandler.prototype = {
 			_log("TabHandler.removeProgressListener()");
 		}
 	},
-	cleanup: function(removeHandler) {
-		this.window = this.tab = this.prevTab = this.gBrowser = this.browser = null;
-		if(removeHandler)
-			delete this.wo._handlers[this.id];
-	},
 	handleEvent: function(e) {
 		switch(e.type) {
 			case "TabSelect": this.dontSelectHiddenTab(e); break;
 			case "unload":    this.closeTab(e);
 		}
+	},
+
+	isEmptyTab: function(tab, gBrowser) {
+		// See "addTab" method in chrome://browser/content/tabbrowser.xml
+		var tabLabel = tab.getAttribute("label") || "";
+		if(!tabLabel || tabLabel == "undefined" || tabLabel == "about:blank")
+			return true;
+		if(/^\w+:\S*$/.test(tabLabel))
+			return false;
+		// We should check tab label for SeaMonkey and old Firefox
+		var emptyTabLabel = this.getTabBrowserString("tabs.emptyTabTitle", gBrowser)
+			|| this.getTabBrowserString("tabs.untitled", gBrowser);
+		return tabLabel == emptyTabLabel;
+	},
+	getTabBrowserString: function(id, gBrowser) {
+		try {
+			return gBrowser.mStringBundle.getString(id);
+		}
+		catch(e) {
+		}
+		return undefined;
 	},
 
 	QueryInterface: function(iid) {
@@ -746,14 +754,6 @@ TabHandler.prototype = {
 		catch(e) {
 			Components.utils.reportError(e);
 		}
-	},
-	getString: function(id) {
-		try {
-			return this.gBrowser.mStringBundle.getString(id);
-		}
-		catch(e) {
-		}
-		return undefined;
 	},
 	get hasGreasemonkey() {
 		var window = this.window;
