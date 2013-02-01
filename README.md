@@ -9,8 +9,8 @@ See _extensions.closedownloadtabs.*_ in about:config
 <br>2 – show all messages
 <br>
 ##### API for other extensions:
-See notes about _extensions.closedownloadtabs.closeURI.pref.*_ in [defaults/preferences/prefs.js](/Infocatcher/Close_Download_Tabs/blob/master/defaults/preferences/prefs.js#files)
-<br>Example: [direct_links.user.js](/Infocatcher/UserScripts/blob/62ddfe043ac807ceea3fe374c00dda3dcde16447/Direct_Links/direct_links.user.js#L70) for [Greasemonkey](https://addons.mozilla.org/firefox/addon/greasemonkey/)
+See notes about _extensions.closedownloadtabs.closeURI.pref.*_ in [defaults/preferences/prefs.js](defaults/preferences/prefs.js#files)
+<br>Example: [direct_links.user.js](../../Infocatcher/UserScripts/blob/62ddfe043ac807ceea3fe374c00dda3dcde16447/Direct_Links/direct_links.user.js#L70) for [Greasemonkey](https://addons.mozilla.org/firefox/addon/greasemonkey/)
 
 Also you can use “CloseDownloadTabs:TabHide” and “CloseDownloadTabs:TabShow” events, example:
 ```javascript
