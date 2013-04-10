@@ -39,9 +39,9 @@ var windowsObserver = {
 			return;
 		this.initialized = true;
 
-		var ws = Services.wm.getEnumerator("navigator:browser");
-		while(ws.hasMoreElements())
-			this.initWindow(ws.getNext(), reason);
+		this.windows.forEach(function(window) {
+			this.initWindow(window, reason);
+		}, this);
 		Services.ww.registerNotification(this);
 
 		if(reason != APP_STARTUP)
@@ -52,9 +52,9 @@ var windowsObserver = {
 			return;
 		this.initialized = false;
 
-		var ws = Services.wm.getEnumerator("navigator:browser");
-		while(ws.hasMoreElements())
-			this.destroyWindow(ws.getNext(), reason);
+		this.windows.forEach(function(window) {
+			this.destroyWindow(window, reason);
+		}, this);
 		Services.ww.unregisterNotification(this);
 
 		for(var id in this._handlers) {
@@ -102,8 +102,24 @@ var windowsObserver = {
 		window.removeEventListener("TabOpen", this, false);
 		window.removeEventListener("SSTabRestoring", this, false);
 	},
+	get isSeaMonkey() {
+		delete this.isSeaMonkey;
+		return this.isSeaMonkey = Services.appinfo.name == "SeaMonkey";
+	},
+	get windows() {
+		var windows = [];
+		var ws = Services.wm.getEnumerator(this.isSeaMonkey ? null : "navigator:browser");
+		while(ws.hasMoreElements()) {
+			var window = ws.getNext();
+			if(this.isTargetWindow(window))
+				windows.push(window);
+		}
+		return windows;
+	},
 	isTargetWindow: function(window) {
-		return window.document.documentElement.getAttribute("windowtype") == "navigator:browser";
+		var winType = window.document.documentElement.getAttribute("windowtype");
+		return winType == "navigator:browser"
+			|| winType == "navigator:private"; // SeaMonkey >= 2.19a1 (2013-03-27)
 	},
 
 	_handlerId: -1,
