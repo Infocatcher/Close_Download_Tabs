@@ -398,27 +398,55 @@ TabHandler.prototype = {
 		window.setTimeout(this.delayedClose.bind(this), this._waitDownload);
 		return 1;
 	},
-	suspendBrowser: function(browser) {
-		browser.stop();
-		if("docShell" in browser && !("__closeDownloadTabs__docShell" in browser)) {
-			var ds = browser.docShell;
-			browser.__closeDownloadTabs__docShell = {
-				allowJavascript:    ds.allowJavascript,
-				allowMetaRedirects: ds.allowMetaRedirects,
-				__proto__: null
-			};
-			ds.allowJavascript = ds.allowMetaRedirects = false;
+	suspendBrowser: function(browser, suspend) {
+		if(!suspend ^ "__closeDownloadTabs_suspended" in browser)
+			return;
+		if(suspend) {
+			browser.__closeDownloadTabs_suspended = true;
+			browser.stop();
 		}
-	},
-	resumeBrowser: function(browser) {
-		if("docShell" in browser && "__closeDownloadTabs__docShell" in browser) {
-			var ds = browser.docShell;
-			var origs = browser.__closeDownloadTabs__docShell;
-			delete browser.__closeDownloadTabs__docShell;
-			for(var p in origs)
-				ds[p] = origs[p];
+		else {
+			delete browser.__closeDownloadTabs_suspended;
 		}
+		if("docShell" in browser) {
+			var ds = browser.docShell;
+			if(suspend) {
+				browser.__closeDownloadTabs_docShell = {
+					allowJavascript:    ds.allowJavascript,
+					allowMetaRedirects: ds.allowMetaRedirects,
+					__proto__: null
+				};
+				ds.allowJavascript = ds.allowMetaRedirects = false;
+				ds.suspendRefreshURIs();
+			}
+			else {
+				var origs = browser.__closeDownloadTabs_docShell;
+				delete browser.__closeDownloadTabs_docShell;
+				for(var p in origs)
+					ds[p] = origs[p];
+				ds.resumeRefreshURIs();
+			}
+		}
+		try {
+			var dwu = browser.contentWindow
+				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+				.getInterface(Components.interfaces.nsIDOMWindowUtils);
+		}
+		catch(e) {
+			Components.utils.reportError(LOG_PREFIX + "Can't get nsIDOMWindowUtils");
+			Components.utils.reportError(e);
+		}
+		if(dwu && "suppressEventHandling" in dwu) // Firefox 3.5+
+			dwu.suppressEventHandling(suspend);
+		if(dwu && "suspendTimeouts" in dwu) { // Firefox 4+
+			if(suspend)
+				dwu.suspendTimeouts();
+			else
+				dwu.resumeTimeouts();
+		}
+		_log((suspend ? "Suspend" : "Resume") + " browser: " + browser.currentURI.spec);
 	},
+
 	makeTabEmpty: function(tab) {
 		// Based on code from Multiple Tab Handler extension
 		// https://addons.mozilla.org/firefox/addon/multiple-tab-handler/
@@ -670,7 +698,7 @@ TabHandler.prototype = {
 		var newLabel = this.closedTabPrefix + (tabLabel ? " " + tabLabel : "");
 
 		if(makeEmpty)
-			this.suspendBrowser(tab.linkedBrowser);
+			this.suspendBrowser(tab.linkedBrowser, true);
 
 		tab.setAttribute(this.wo.closedAttr, "true");
 		this.wo.persistTabAttributeOnce();
@@ -716,7 +744,7 @@ TabHandler.prototype = {
 		}
 		var browser = tab.linkedBrowser;
 		delete browser.__closeDownloadTabs__canClose;
-		this.resumeBrowser(browser);
+		this.suspendBrowser(browser, false);
 
 		var tabLabel = tab.getAttribute("label") || "";
 		var prefix = this.closedTabPrefix;
