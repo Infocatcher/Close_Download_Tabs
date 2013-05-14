@@ -449,8 +449,8 @@ TabHandler.prototype = {
 
 	makeTabEmpty: function(tab) {
 		// Based on code from Multiple Tab Handler extension
-		// https://addons.mozilla.org/firefox/addon/multiple-tab-handler/
 		// chrome://multipletab/content/multipletab.js -> makeTabBlank()
+		// https://github.com/piroor/multipletab/blob/master/content/multipletab/multipletab.js
 		try {
 			var browser = tab.linkedBrowser;
 			browser.loadURI("about:blank");
@@ -461,6 +461,13 @@ TabHandler.prototype = {
 			delete browser.__SS_data;
 			delete browser.__SS_formDataSaved;
 			delete browser.__SS_hostSchemeData;
+			try {
+				var ssGlobal = Components.utils.import("resource:///modules/sessionstore/SessionStore.jsm", {});
+			}
+			catch(e2) {
+			}
+			if(ssGlobal && "RestoringTabsData" in ssGlobal) // Firefox 23+
+				ssGlobal.RestoringTabsData.remove(browser);
 			_log("Make tab empty " + (tab.getAttribute("label") || "").substr(0, 256));
 		}
 		catch(e) {
