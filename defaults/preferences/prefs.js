@@ -11,16 +11,26 @@ pref("extensions.closeDownloadTabs.waitDownloadAction", 1000); // Wait after "lo
 pref("extensions.closeDownloadTabs.checkModalInterval", 1500); // We don't remove tab, until opened modal dialog
 // See https://github.com/Infocatcher/Close_Download_Tabs/issues/1 for details
 
-// API for another extensions:
-// 1. Add extensions.closeDownloadTabs.closeURI.pref.<full_pref_name> = true preference
-// 2. Do following for new tab:
-//   setPref("<full_pref_name>", location.href);
-//   deletePref("<full_pref_name>"); // Don't save history :)
-pref("extensions.closeDownloadTabs.closeURI.pref.extensions.greasemonkey.scriptvals.dev/null/Direct Links.closeURI", true);
-pref("extensions.closeDownloadTabs.closeURI.pref.greasemonkey.scriptvals.dev/null/Direct Links.closeURI", true);
-pref("extensions.closeDownloadTabs.closeURI.pref.extensions.scriptish.scriptvals.DirectLinks@devnull.closeURI", true);
-pref("extensions.closeDownloadTabs.closeURI.expire", 10000);
-pref("extensions.closeDownloadTabs.closeURI.delay", 150); // Delay between makeTabEmpty() and removeTab()
+/* API for other extensions:
+1. Add extensions.closeDownloadTabs.events.pref.<pref_name> = true preference
+2. Do following for new tab:
+	setPref("<pref_name>", "?" + new Date().getTime());
+	var evtType = getPref("<pref_name>", "");
+	if(evtType && evtType.charAt(0) != "?") {
+		clearPref("<pref_name>");
+		var evt = document.createEvent("Events");
+		evt.initEvent(evtType, true, false);
+		document.dispatchEvent(evt);
+	}
+*/
+pref("extensions.closeDownloadTabs.events.pref.extensions.greasemonkey.scriptvals.dev/null/Direct Links.event", true);
+pref("extensions.closeDownloadTabs.events.pref.greasemonkey.scriptvals.dev/null/Direct Links.event", true);
+pref("extensions.closeDownloadTabs.events.pref.extensions.scriptish.scriptvals.DirectLinks@devnull.event", true);
+pref("extensions.closeDownloadTabs.events.pref.extensions.greasemonkey.scriptvals.dev/null/Direct Links Testcase.event", true);
+pref("extensions.closeDownloadTabs.events.pref.greasemonkey.scriptvals.dev/null/Direct Links Testcase.event", true);
+pref("extensions.closeDownloadTabs.events.pref.extensions.scriptish.scriptvals.DirectLinksTestcase@devnull.event", true);
+pref("extensions.closeDownloadTabs.events.expire", 1000);
+pref("extensions.closeDownloadTabs.events.delay", 150); // Delay between makeTabEmpty() and removeTab()
 // We make tab empty to don't save it in undo close history.
 // And without delay wrong state (not yet emptied) may be saved.
 

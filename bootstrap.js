@@ -77,7 +77,22 @@ var windowsObserver = {
 		switch(e.type) {
 			case "DOMContentLoaded": this.loadHandler(e);         break;
 			case "TabOpen":          this.tabOpenHandler(e);      break;
-			case "SSTabRestoring":   this.tabRestoringHandler(e);
+			case "SSTabRestoring":   this.tabRestoringHandler(e); break;
+			default: if(e.type.substr(0, prefs.eventPrefix.length) == prefs.eventPrefix) {
+				var contentDocument = e.target.defaultView.top.document;
+				var browser = this.dwu.getParentForNode(contentDocument, true);
+				if(
+					browser
+					&& browser.localName == "browser"
+					&& browser.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+				) {
+					_log(e.type + " => suspendBrowser()\n" + browser.currentURI.spec);
+					TabHandler.prototype.suspendBrowser(browser, true);
+				}
+				else {
+					_log(e.type + ": Can't find browser: " + (browser && browser.nodeName));
+				}
+			}
 		}
 	},
 	loadHandler: function(e) {
@@ -101,6 +116,9 @@ var windowsObserver = {
 			return;
 		window.removeEventListener("TabOpen", this, false);
 		window.removeEventListener("SSTabRestoring", this, false);
+		var events = prefs._events;
+		for(var pName in events)
+			window.removeEventListener(events[pName], this, true);
 	},
 	get isSeaMonkey() {
 		delete this.isSeaMonkey;
@@ -120,6 +138,11 @@ var windowsObserver = {
 		var winType = window.document.documentElement.getAttribute("windowtype");
 		return winType == "navigator:browser"
 			|| winType == "navigator:private"; // SeaMonkey >= 2.19a1 (2013-03-27)
+	},
+	get dwu() {
+		delete this.dwu;
+		return this.dwu = Components.classes["@mozilla.org/inspector/dom-utils;1"]
+			.getService(Components.interfaces.inIDOMUtils);
 	},
 
 	_handlerId: -1,
@@ -481,11 +504,7 @@ TabHandler.prototype = {
 			|| browser.webProgress.isLoadingDocument;
 	},
 	canClose: function(browser) {
-		if("__closeDownloadTabs__canClose" in browser)
-			return true;
-		if(browser.contentDocument && prefs.hasKey(browser.contentDocument.documentURI))
-			return browser.__closeDownloadTabs__canClose = true;
-		return false;
+		return "__closeDownloadTabs_suspended" in browser;
 	},
 	delayedClose: function() {
 		var ws = Services.wm.getEnumerator(null);
@@ -679,7 +698,7 @@ TabHandler.prototype = {
 					window.setTimeout(function() {
 						gBrowser.removeTab(tab, { animate: false });
 						_log("Close emptied tab (delayed)");
-					}, prefs.get("closeURI.delay", 150));
+					}, prefs.get("events.delay", 150));
 				}
 				else {
 					try {
@@ -750,7 +769,7 @@ TabHandler.prototype = {
 			return;
 		}
 		var browser = tab.linkedBrowser;
-		delete browser.__closeDownloadTabs__canClose;
+		//delete browser.__closeDownloadTabs__canClose;
 		this.suspendBrowser(browser, false);
 
 		var tabLabel = tab.getAttribute("label") || "";
@@ -824,7 +843,7 @@ var prefs = {
 		if(Services.vc.compare(Services.appinfo.platformVersion, "4.0a1") >= 0)
 			this.loadDefaultPrefs();
 		Services.prefs.addObserver(this.ns, this, false);
-		this.watchKeys();
+		this.watchEvents();
 	},
 	delayedInit: function() {
 		if(!this.initialized)
@@ -836,13 +855,16 @@ var prefs = {
 		this.initialized = false;
 
 		Services.prefs.removeObserver(this.ns, this);
-		this.unwatchKeys();
+		this.unwatchEvents();
 	},
-	_keys: { __proto__: null },
-	_keyPrefs: [],
-	watchKeys: function() {
-		var branch = "closeURI.pref.";
-		var keys = this._keyPrefs = Services.prefs.getBranch(this.ns + branch)
+
+	eventPrefix: "CloseDownloadTabs:MarkAsEmpty:",
+	_eventPrefs: [],
+	_events: { __proto__: null },
+	_eventTimers: { __proto__: null },
+	watchEvents: function() {
+		var branch = "events.pref.";
+		var keys = this._eventPrefs = Services.prefs.getBranch(this.ns + branch)
 			.getChildList("", {})
 			.filter(function(pName) {
 				return this.get(branch + pName);
@@ -852,40 +874,66 @@ var prefs = {
 			Services.prefs.addObserver(pName, this, false);
 		}, this);
 	},
-	unwatchKeys: function() {
-		this._keyPrefs.forEach(function(pName) {
+	unwatchEvents: function() {
+		this._eventPrefs.forEach(function(pName) {
 			//_log('Remove prefs observer for "' + pName + '"');
 			Services.prefs.removeObserver(pName, this);
+			delete this._cache["events.pref." + pName];
 		}, this);
 	},
-	addKey: function(key, _source) {
-		if(!key)
+	addEvent: function(pName) {
+		_log("Add event, pref: " + pName);
+		var evtType = this.eventPrefix
+			+ Math.random().toFixed(16).substr(2)
+			+ Math.random().toFixed(16).substr(2);
+		this._events[pName] = evtType;
+		windowsObserver.windows.forEach(function(window) {
+			window.addEventListener(evtType, windowsObserver, true, true);
+		}, this);
+		this.setPref(pName, evtType);
+
+		var timers = this._eventTimers;
+		if(pName in timers)
+			cancelTimer(timers[pName]);
+		timers[pName] = timer(function() {
+			delete timers[pName];
+			this.setPref(pName, ""); //~ todo: deletePref() ?
+		}, this, this.get("events.expire", 1000));
+	},
+	removeEvent: function(pName) {
+		_log("Remove event, pref: " + pName);
+		if(!(pName in this._events))
 			return;
-		_log("Mark tab as empty:\nPref: " + _source + "\nURI: " + key);
-		var keys = this._keys;
-		if(key in keys)
-			cancelTimer(keys[key]);
-		keys[key] = timer(function() {
-			delete keys[key];
-			_log("URI expired:\nPref: " + _source + "\nURI: " + key);
-		}, this, this.get("closeURI.expire", 10e3));
+
+		var evtType = this._events[pName];
+		delete this._events[pName];
+		windowsObserver.windows.forEach(function(window) {
+			window.removeEventListener(evtType, windowsObserver, true);
+		}, this);
+
+		var timers = this._eventTimers;
+		if(pName in timers) {
+			cancelTimer(timers[pName]);
+			delete timers[pName];
+		}
 	},
-	hasKey: function(key) {
-		return key in this._keys;
-	},
+
 	observe: function(subject, topic, pName) {
 		if(topic != "nsPref:changed")
 			return;
 		var pVal = this.getPref(pName);
-		if(this._keyPrefs.indexOf(pName) != -1) {
-			this.addKey(pVal, pName);
+		if(this._eventPrefs.indexOf(pName) != -1) {
+			if(String(pVal).charAt(0) == "?")
+				this.addEvent(pName);
+			else if(!pVal)
+				this.removeEvent(pName);
 			return;
 		}
 		var shortName = pName.substr(this.ns.length);
 		this._cache[shortName] = pVal;
-		if(shortName.substr(0, 14) == "closeURI.pref.") {
-			this.unwatchKeys();
-			this.watchKeys();
+		if(shortName.substr(0, 14) == "events.pref.") {
+			this.unwatchEvents();
+			this.watchEvents();
 		}
 	},
 
