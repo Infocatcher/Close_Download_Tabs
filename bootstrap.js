@@ -241,7 +241,12 @@ TabHandler.prototype = {
 	isEmptyTab: function(tab, gBrowser) {
 		// See "addTab" method in chrome://browser/content/tabbrowser.xml
 		var tabLabel = tab.getAttribute("label") || "";
-		if(!tabLabel || tabLabel == "undefined" || tabLabel == "about:blank")
+		if(
+			!tabLabel
+			|| tabLabel == "undefined"
+			|| tabLabel == "about:blank"
+			|| tabLabel == "private:///#about:blank" // Private Tab https://addons.mozilla.org/addon/private-tab/
+		)
 			return true;
 		if(/^\w+:\S*$/.test(tabLabel))
 			return false;
