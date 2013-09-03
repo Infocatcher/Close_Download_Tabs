@@ -92,14 +92,14 @@ var windowsObserver = {
 				return;
 			prefs.delayedInit();
 		}
-		window.addEventListener("TabOpen", this, false);
+		window.addEventListener("TabOpen", this, true);
 		window.addEventListener("SSTabRestoring", this, false);
 	},
 	destroyWindow: function(window, reason) {
 		window.removeEventListener("DOMContentLoaded", this, false); // Window can be closed before DOMContentLoaded
 		if(reason == WINDOW_CLOSED && !this.isTargetWindow(window))
 			return;
-		window.removeEventListener("TabOpen", this, false);
+		window.removeEventListener("TabOpen", this, true);
 		window.removeEventListener("SSTabRestoring", this, false);
 	},
 	get isSeaMonkey() {
