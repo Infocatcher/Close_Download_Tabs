@@ -8,7 +8,7 @@
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>Close Download Tabs</em:name>
 		<em:version>0.1.0a23</em:version>
-		<em:description>Automatically close new tabs with downloadable links</em:description>
+		<em:description>Automatically closes new tabs with downloadable links</em:description>
 		<em:creator>Infocatcher</em:creator>
 		<em:contributor>Icon: modified Nuvola (http://icon-king.com/projects/nuvola/) + Carpelinx (http://www.grafixport.org/)</em:contributor>
 		<em:updateURL>http://infocatcher.ucoz.net/ext/fx/close_download_tabs/update.rdf</em:updateURL>
@@ -31,6 +31,16 @@
 				<em:maxVersion>2.24a1</em:maxVersion>
 			</Description>
 		</em:targetApplication>
+
+		<em:localized>
+			<Description>
+				<em:locale>en-US</em:locale>
+				<em:name>Close Download Tabs</em:name>
+				<em:description>Automatically closes new tabs with downloadable links</em:description>
+				<em:creator>Infocatcher</em:creator>
+				<em:contributor>Icon: modified Nuvola (http://icon-king.com/projects/nuvola/) + Carpelinx (http://www.grafixport.org/)</em:contributor>
+			</Description>
+		</em:localized>
 
 		<em:localized>
 			<Description>
