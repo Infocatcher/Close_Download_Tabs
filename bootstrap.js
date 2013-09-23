@@ -225,10 +225,14 @@ TabHandler.prototype = {
 		_log("TabHandler.destroy()");
 	},
 	destroyProgress: function() {
-		if(this._hasProgressListener) {
-			this._hasProgressListener = false;
+		if(!this._hasProgressListener)
+			return;
+		this._hasProgressListener = false;
+		if(!this.browser.removeProgressListener)
+			_log("TabHandler.destroyProgress(): browser looks already destroyed");
+		else {
 			this.browser.removeProgressListener(this);
-			_log("TabHandler.removeProgressListener()");
+			_log("TabHandler.destroyProgress() => browser.removeProgressListener()");
 		}
 	},
 	handleEvent: function(e) {
