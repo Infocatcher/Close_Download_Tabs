@@ -702,7 +702,7 @@ TabHandler.prototype = {
 			}
 		}
 		else if(tab.closing) {
-			_info("Tab aren't empty anymore => show it");
+			_info("Tab isn't empty anymore => show it");
 			this.showTab(tab);
 		}
 		this.destroy();
@@ -899,6 +899,7 @@ var prefs = {
 	},
 
 	loadDefaultPrefs: function() {
+		this._cache = { __proto__: null }; // We use delayedInit(), so prefs.get() may save wrong value in cache
 		var defaultBranch = Services.prefs.getDefaultBranch("");
 		var prefsFile = rootURI + "defaults/preferences/prefs.js";
 		var prefs = this;
