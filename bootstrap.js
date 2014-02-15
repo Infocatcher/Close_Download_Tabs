@@ -21,18 +21,18 @@ function startup(params, reason) {
 	//if(Services.vc.compare(Services.appinfo.platformVersion, "10.0") < 0)
 	//	Components.manager.addBootstrappedManifestLocation(params.installPath);
 
-	windowsObserver.init(reason);
+	closeDownloadTabs.init(reason);
 }
 function shutdown(params, reason) {
 	//if(Services.vc.compare(Services.appinfo.platformVersion, "10.0") < 0)
 	//	Components.manager.removeBootstrappedManifestLocation(params.installPath);
 
-	windowsObserver.destroy(reason);
+	closeDownloadTabs.destroy(reason);
 	if(reason != APP_SHUTDOWN) //?
 		destroyTimers();
 }
 
-var windowsObserver = {
+var closeDownloadTabs = {
 	initialized: false,
 	init: function(reason) {
 		if(this.initialized)
@@ -223,7 +223,7 @@ function TabHandler(tab) {
 	this.init();
 }
 TabHandler.prototype = {
-	wo: windowsObserver,
+	cdt: closeDownloadTabs,
 
 	id: -1,
 	origTab: null,
@@ -233,9 +233,9 @@ TabHandler.prototype = {
 	_waitTimer: 0,
 
 	init: function() {
-		var wo = this.wo;
-		var id = this.id = ++wo._handlerId;
-		wo._handlers[id] = this;
+		var cdt = this.cdt;
+		var id = this.id = ++cdt._handlerId;
+		cdt._handlers[id] = this;
 
 		this._maxLoadingWait     = prefs.get("maxLoadingWait",             2.5*60e3);
 		this._waitInterval       = prefs.get("waitInterval",               500);
@@ -264,13 +264,13 @@ TabHandler.prototype = {
 			this.destroyModalChecker();
 		if(reason) {
 			var tab = this.tab;
-			if(tab.hasAttribute(this.wo.closedAttr)) {
+			if(tab.hasAttribute(this.cdt.closedAttr)) {
 				_log("Try restore not yet closed tab");
 				this.showTab(tab);
 			}
 		}
 		this.window = this.tab = this.prevTab = this.gBrowser = this.browser = null;
-		delete this.wo._handlers[this.id];
+		delete this.cdt._handlers[this.id];
 		_log("TabHandler.destroy()");
 	},
 	destroyProgress: function() {
@@ -541,7 +541,7 @@ TabHandler.prototype = {
 	canClose: function(browser) {
 		if("__closeDownloadTabs__canClose" in browser)
 			return true;
-		if(browser.contentDocument && this.wo.hasKey(browser.contentDocument.documentURI))
+		if(browser.contentDocument && this.cdt.hasKey(browser.contentDocument.documentURI))
 			return browser.__closeDownloadTabs__canClose = true;
 		return false;
 	},
@@ -645,7 +645,7 @@ TabHandler.prototype = {
 	},
 	closeTab: function(e) {
 		var checkModalInterval = prefs.get("checkModalInterval", 1500);
-		if(e || !this.wo.hasAsyncFilePicker || checkModalInterval < 0) {
+		if(e || !this.cdt.hasAsyncFilePicker || checkModalInterval < 0) {
 			this._closeTab.apply(this, arguments);
 			return;
 		}
@@ -765,8 +765,8 @@ TabHandler.prototype = {
 		if(makeEmpty)
 			this.suspendBrowser(tab.linkedBrowser, true);
 
-		tab.setAttribute(this.wo.closedAttr, "true");
-		this.wo.persistTabAttributeOnce();
+		tab.setAttribute(this.cdt.closedAttr, "true");
+		this.cdt.persistTabAttributeOnce();
 
 		tab.setAttribute("collapsed", "true");
 		tab.setAttribute("label", newLabel);
@@ -819,7 +819,7 @@ TabHandler.prototype = {
 		}
 
 		tab.closing = false;
-		tab.removeAttribute(this.wo.closedAttr);
+		tab.removeAttribute(this.cdt.closedAttr);
 		tab.removeAttribute("collapsed");
 		if(tab == this.origTab)
 			this.gBrowser.selectedTab = tab;
