@@ -541,7 +541,7 @@ TabHandler.prototype = {
 	canClose: function(browser) {
 		if("__closeDownloadTabs__canClose" in browser)
 			return true;
-		if(browser.contentDocument && windowsObserver.hasKey(browser.contentDocument.documentURI))
+		if(browser.contentDocument && this.wo.hasKey(browser.contentDocument.documentURI))
 			return browser.__closeDownloadTabs__canClose = true;
 		return false;
 	},
