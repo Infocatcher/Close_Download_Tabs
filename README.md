@@ -9,8 +9,23 @@ See _extensions.closedownloadtabs.*_ in about:config
 <br>2 – show all messages
 <br>
 ##### API for other extensions:
-See notes about _extensions.closedownloadtabs.closeURI.pref.*_ in [defaults/preferences/prefs.js](defaults/preferences/prefs.js#files)
-<br>Example: [direct_links.user.js](https://github.com/Infocatcher/UserScripts/blob/62ddfe043ac807ceea3fe374c00dda3dcde16447/Direct_Links/direct_links.user.js#L70) for [Greasemonkey](https://addons.mozilla.org/firefox/addon/greasemonkey/)
+You can post special message using <a href="https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsIConsoleService#logStringMessage%28%29">nsIConsoleService.logStringMessage()</a>, example:
+```js
+var uri = ...; // URI of some just opened tab
+Services.console.logStringMessage("[Close Download Tabs] Mark URI as empty:\n" + uri);
+```
+Example for <a href="https://addons.mozilla.org/firefox/addon/greasemonkey/">Greasemonkey</a>/<a href="https://addons.mozilla.org/firefox/addon/scriptish/">Scriptish</a>:
+```js
+// ==UserScript==
+// @name      User script example for Close Download Tabs extension
+// @namespace dev/null
+// @run-at    document-start
+// @include   http://example.com/
+// @grant     GM_log
+// ==/UserScript==
+GM_log("[Close Download Tabs] Mark URI as empty:\n" + location.href);
+```
+Yet another user script example: <a href="https://github.com/Infocatcher/UserScripts/tree/master/Direct_Links">Direct Links</a>.
 
 Also you can use “CloseDownloadTabs:TabHide” and “CloseDownloadTabs:TabShow” events, example:
 ```javascript
