@@ -52,6 +52,7 @@ var windowsObserver = {
 			return;
 		this.initialized = false;
 
+		this.initConsoleListener(false);
 		this.windows.forEach(function(window) {
 			this.destroyWindow(window, reason);
 		}, this);
@@ -71,6 +72,8 @@ var windowsObserver = {
 			subject.addEventListener("DOMContentLoaded", this, false);
 		else if(topic == "domwindowclosed")
 			this.destroyWindow(subject, WINDOW_CLOSED);
+		else if(!topic)
+			this.handleConsoleMessage(subject);
 	},
 
 	handleEvent: function(e) {
@@ -94,6 +97,9 @@ var windowsObserver = {
 		}
 		window.addEventListener("TabOpen", this, true);
 		window.addEventListener("SSTabRestoring", this, false);
+		window.setTimeout(function() {
+			this.initConsoleListener(true);
+		}.bind(this), 0);
 	},
 	destroyWindow: function(window, reason) {
 		window.removeEventListener("DOMContentLoaded", this, false); // Window can be closed before DOMContentLoaded
@@ -136,6 +142,47 @@ var windowsObserver = {
 			_log("Hack: remove closed tab");
 			tab.ownerDocument.defaultView.gBrowser.removeTab(tab);
 		}
+	},
+
+	consoleMessage: LOG_PREFIX + "Mark URI as empty:\n",
+	_hasConsoleListener: false,
+	initConsoleListener: function(add) {
+		if(add == this._hasConsoleListener)
+			return;
+		this._hasConsoleListener = add;
+		if(add)
+			Services.console.registerListener(this);
+		else
+			Services.console.unregisterListener(this);
+	},
+	handleConsoleMessage: function(msg) {
+		if(
+			msg
+			&& msg instanceof Components.interfaces.nsIConsoleMessage
+			&& !(msg instanceof Components.interfaces.nsIScriptError)
+		) {
+			var msgText = msg.message || "";
+			var pos = msgText.indexOf(this.consoleMessage);
+			if(pos != -1) {
+				var uri = msgText.substr(pos + this.consoleMessage.length);
+				this.addKey(uri);
+			}
+		}
+	},
+	_keys: { __proto__: null },
+	addKey: function(key) {
+		if(!key)
+			return;
+		var keys = this._keys;
+		if(key in keys)
+			cancelTimer(keys[key]);
+		keys[key] = timer(function() {
+			delete keys[key];
+			_log("URI expired:\n" + key);
+		}, this, prefs.get("closeURI.expire", 10e3));
+	},
+	hasKey: function(key) {
+		return key in this._keys;
 	},
 
 	closedAttr: "closedownloadtabs-closed",
@@ -494,7 +541,7 @@ TabHandler.prototype = {
 	canClose: function(browser) {
 		if("__closeDownloadTabs__canClose" in browser)
 			return true;
-		if(browser.contentDocument && prefs.hasKey(browser.contentDocument.documentURI))
+		if(browser.contentDocument && windowsObserver.hasKey(browser.contentDocument.documentURI))
 			return browser.__closeDownloadTabs__canClose = true;
 		return false;
 	},
@@ -835,7 +882,6 @@ var prefs = {
 		if(Services.vc.compare(Services.appinfo.platformVersion, "4.0a1") >= 0)
 			this.loadDefaultPrefs();
 		Services.prefs.addObserver(this.ns, this, false);
-		this.watchKeys();
 	},
 	delayedInit: function() {
 		if(!this.initialized)
@@ -847,57 +893,14 @@ var prefs = {
 		this.initialized = false;
 
 		Services.prefs.removeObserver(this.ns, this);
-		this.unwatchKeys();
 	},
-	_keys: { __proto__: null },
-	_keyPrefs: [],
-	watchKeys: function() {
-		var branch = "closeURI.pref.";
-		var keys = this._keyPrefs = Services.prefs.getBranch(this.ns + branch)
-			.getChildList("", {})
-			.filter(function(pName) {
-				return this.get(branch + pName);
-			}, this);
-		keys.forEach(function(pName) {
-			//_log('Add prefs observer for "' + pName + '"');
-			Services.prefs.addObserver(pName, this, false);
-		}, this);
-	},
-	unwatchKeys: function() {
-		this._keyPrefs.forEach(function(pName) {
-			//_log('Remove prefs observer for "' + pName + '"');
-			Services.prefs.removeObserver(pName, this);
-		}, this);
-	},
-	addKey: function(key, _source) {
-		if(!key)
-			return;
-		_log("Mark tab as empty:\nPref: " + _source + "\nURI: " + key);
-		var keys = this._keys;
-		if(key in keys)
-			cancelTimer(keys[key]);
-		keys[key] = timer(function() {
-			delete keys[key];
-			_log("URI expired:\nPref: " + _source + "\nURI: " + key);
-		}, this, this.get("closeURI.expire", 10e3));
-	},
-	hasKey: function(key) {
-		return key in this._keys;
-	},
+
 	observe: function(subject, topic, pName) {
 		if(topic != "nsPref:changed")
 			return;
 		var pVal = this.getPref(pName);
-		if(this._keyPrefs.indexOf(pName) != -1) {
-			this.addKey(pVal, pName);
-			return;
-		}
 		var shortName = pName.substr(this.ns.length);
 		this._cache[shortName] = pVal;
-		if(shortName.substr(0, 14) == "closeURI.pref.") {
-			this.unwatchKeys();
-			this.watchKeys();
-		}
 	},
 
 	loadDefaultPrefs: function() {
