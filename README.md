@@ -2,7 +2,7 @@
 Extension automatically close new tabs with downloadable links. And, as a side effect, close any tabs, that still empty after opening. Specially opened empty tabs shouldn't be closed.
 <br>
 ##### Preferences:
-See _extensions.closedownloadtabs.*_ in about:config
+See _extensions.closedownloadtabs.*_ in about:config (see <a href="defaults/preferences/prefs.js">defaults/preferences/prefs.js</a> for some descriptions)
 <br>_extensions.closedownloadtabs.debug_:
 <br>0 – don't show debug messages in Error Console
 <br>1 – show only important messages
@@ -27,7 +27,7 @@ GM_log("[Close Download Tabs] Mark URI as empty:\n" + location.href);
 ```
 Yet another user script example: <a href="https://github.com/Infocatcher/UserScripts/tree/master/Direct_Links">Direct Links</a>.
 
-Also you can use “CloseDownloadTabs:TabHide” and “CloseDownloadTabs:TabShow” events, example:
+Also you can use `CloseDownloadTabs:TabHide` and `CloseDownloadTabs:TabShow` events, example:
 ```javascript
 function logger(e) {
 	var tab = e.target;
