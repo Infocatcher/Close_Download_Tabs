@@ -6,6 +6,7 @@
 `*` - improved<br>
 
 ##### master/HEAD
+##### 0.1.0a24 (2014-02-16)
 `*` Update makeTabEmpty() function for changes in bugs <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=867097">867097</a> and <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=867118">867118</a>.<br>
 `x` Handle `TabOpen` event before other extensions (for compatibility with <a href="https://addons.mozilla.org/addon/tile-tabs/versions/10.0">Tile Tabs 10.0</a>) (<a href="https://github.com/Infocatcher/Close_Download_Tabs/issues/3">#3</a>).<br>
 `x` Correctly detect tabs with `private:///#about:blank` as empty (<a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a>).<br>
