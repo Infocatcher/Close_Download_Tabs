@@ -959,11 +959,6 @@ var prefs = {
 		}
 		return this;
 	},
-	resetPref: function(pName) {
-		var ps = Services.prefs;
-		if(ps.prefHasUserValue(pName))
-			ps.clearUserPref(pName);
-	},
 	getValueType: function(val) {
 		switch(typeof val) {
 			case "boolean": return Services.prefs.PREF_BOOL;
