@@ -242,7 +242,7 @@ TabHandler.prototype = {
 		this._waitLoaded         = prefs.get("waitLoadedTab",              80);
 		this._waitLoadedGM       = prefs.get("waitLoadedTab.greasemonkey", 1000);
 		this._waitStopProgress   = prefs.get("waitAfterStopProgress",      10);
-		this._waitDownload       = prefs.get("waitDownload",               2000);
+		this._waitDownload       = prefs.get("waitDownload",               2500);
 		this._waitDownloadAction = prefs.get("waitDownloadAction",         1500);
 
 		this.startWait();

@@ -13,6 +13,7 @@
 `*` Увеличена задержка <em>extensions.closeDownloadTabs.waitDownloadAction</em> с 1000 до 1500 мс.<br>
 `x` Исправлено определение встроенных приватных окон в SeaMonkey 2.19+ (по причине изменений в релизной версии).<br>
 `x` Исправлен API для <a href="https://addons.mozilla.org/addon/greasemonkey/">Greasemonkey</a> 1.13+: теперь используются консольные сообщения для взаимодействия с пользовательскими скриптами (<a href="https://github.com/Infocatcher/Close_Download_Tabs/issues/4">#4</a>).<br>
+`*` Увеличена задержка <em>extensions.closeDownloadTabs.waitDownload</em> с 2000 до 2500 мс (может понадобиться, как минимум, для расширения <a href="https://addons.mozilla.org/addon/flashgot/">FlashGot</a>).<br>
 
 ##### 0.1.0a23 (2013-04-19)
 `*` Улучшено отключение расширение: добавлено принудительное завершение некоторых внутренних процессов.<br>

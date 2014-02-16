@@ -13,6 +13,7 @@
 `*` Increased <em>extensions.closeDownloadTabs.waitDownloadAction</em> delay from 1000 to 1500 ms.<br>
 `x` Correctly detect built-in private windows in SeaMonkey 2.19+ (in case of changes in release version).<br>
 `x` Fixed API for <a href="https://addons.mozilla.org/addon/greasemonkey/">Greasemonkey</a> 1.13+: now used console messages for interaction with user scripts (<a href="https://github.com/Infocatcher/Close_Download_Tabs/issues/4">#4</a>).<br>
+`*` Increased <em>extensions.closeDownloadTabs.waitDownload</em> delay from 2000 to 2500 ms (may be needed at least for <a href="https://addons.mozilla.org/addon/flashgot/">FlashGot</a> extension).<br>
 
 ##### 0.1.0a23 (2013-04-19)
 `*` Improve extension disabling: force destroy some internal things.<br>

@@ -6,7 +6,7 @@ pref("extensions.closeDownloadTabs.waitInterval", 500); // Interval to periodica
 pref("extensions.closeDownloadTabs.waitLoadedTab", 80); // Additional delay for about:neterror?..
 pref("extensions.closeDownloadTabs.waitLoadedTab.greasemonkey", 1000); // Additional delay for *.user.js
 pref("extensions.closeDownloadTabs.waitAfterStopProgress", 10); // Additional delay after STATE_STOP notification
-pref("extensions.closeDownloadTabs.waitDownload", 2000); // Delay before tab will be closed (if there is no "locker windows")
+pref("extensions.closeDownloadTabs.waitDownload", 2500); // Delay before tab will be closed (if there is no "locker windows")
 pref("extensions.closeDownloadTabs.waitDownloadAction", 1500); // Wait after "locker window" will be closed
 pref("extensions.closeDownloadTabs.checkModalInterval", 1500); // We don't remove tab until opened modal dialog
 // See https://github.com/Infocatcher/Close_Download_Tabs/issues/1 for details
