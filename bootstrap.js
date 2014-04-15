@@ -299,6 +299,7 @@ TabHandler.prototype = {
 			|| tabLabel == "undefined"
 			|| tabLabel == "about:blank"
 			|| tabLabel == "private:///#about:blank" // Private Tab https://addons.mozilla.org/addon/private-tab/
+			|| tabLabel == "private:about:blank"
 		)
 			return true;
 		if(/^\w+:\S*$/.test(tabLabel))
