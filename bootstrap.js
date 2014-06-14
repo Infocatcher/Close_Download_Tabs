@@ -2,7 +2,8 @@ const WINDOW_LOADED = -1;
 const WINDOW_CLOSED = -2;
 
 const LOG_PREFIX = "[Close Download Tabs] ";
-var rootURI;
+var rootURI = "chrome://closedownloadtabs/content/";
+var platformVersion;
 
 if(!("Services" in this))
 	Components.utils.import("resource://gre/modules/Services.jsm");
@@ -12,21 +13,17 @@ function install(params, reason) {
 function uninstall(params, reason) {
 }
 function startup(params, reason) {
-	rootURI = params && params.resourceURI
-		? params.resourceURI.spec
-		: new Error().fileName
-			.replace(/^.* -> /, "")
-			.replace(/[^\/]+$/, "");
-
-	//if(Services.vc.compare(Services.appinfo.platformVersion, "10.0") < 0)
-	//	Components.manager.addBootstrappedManifestLocation(params.installPath);
-
+	platformVersion = parseFloat(Services.appinfo.platformVersion);
+	if(platformVersion >= 2 && platformVersion < 10) {
+		rootURI = params && params.resourceURI
+			? params.resourceURI.spec
+			: new Error().fileName
+				.replace(/^.* -> /, "")
+				.replace(/[^\/]+$/, "");
+	}
 	closeDownloadTabs.init(reason);
 }
 function shutdown(params, reason) {
-	//if(Services.vc.compare(Services.appinfo.platformVersion, "10.0") < 0)
-	//	Components.manager.removeBootstrappedManifestLocation(params.installPath);
-
 	closeDownloadTabs.destroy(reason);
 	if(reason != APP_SHUTDOWN) //?
 		destroyTimers();
@@ -880,7 +877,7 @@ var prefs = {
 		this.initialized = true;
 
 		//~ todo: add new condition when https://bugzilla.mozilla.org/show_bug.cgi?id=564675 will be fixed
-		if(Services.vc.compare(Services.appinfo.platformVersion, "2.0a1") >= 0)
+		if(platformVersion >= 2)
 			this.loadDefaultPrefs();
 		Services.prefs.addObserver(this.ns, this, false);
 	},
