@@ -34,7 +34,7 @@ GM_log("[Close Download Tabs] Mark URI as empty:\n" + location.href);
 Yet another user script example: <a href="https://github.com/Infocatcher/UserScripts/tree/master/Direct_Links">Direct Links</a>.
 
 Also you can use `CloseDownloadTabs:TabHide` and `CloseDownloadTabs:TabShow` events, example:
-```javascript
+```js
 function logger(e) {
 	var tab = e.target;
 	Services.console.logStringMessage(
