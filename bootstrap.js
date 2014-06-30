@@ -600,7 +600,8 @@ TabHandler.prototype = {
 	},
 	dontSelectHiddenTab: function(e) {
 		var tab = this.tab;
-		if(e.target != tab || !tab.closing)
+		var selectedTab = e.originalTarget || e.target;
+		if(selectedTab != tab || !tab.closing)
 			return;
 		// <tab /><tab collapsed="true" />
 		// Close first tab: collapsed tab becomes selected
