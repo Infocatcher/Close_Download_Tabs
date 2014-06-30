@@ -6,6 +6,7 @@
 `*` - improved<br>
 
 ##### master/HEAD
+##### 0.1.0a25 (2014-06-30)
 `x` Detect private:about:blank as empty tab (<a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension).<br>
 `x` Correctly load default preferences in Gecko 2 and 3.<br>
 `x` Fixed: don't select hidden tab in SeaMonkey.<br>

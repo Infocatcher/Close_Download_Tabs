@@ -6,6 +6,7 @@
 `*` - улучшено<br>
 
 ##### master/HEAD
+##### 0.1.0a25 (2014-06-30)
 `x` Определение private:about:blank как пустой вкладки (<a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension).<br>
 `x` Исправлена загрузка настроек по умолчанию в Gecko 2 и 3.<br>
 `x` Исправлено блокирование выделения скрытой вкладки в SeaMonkey.<br>
