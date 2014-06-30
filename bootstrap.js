@@ -291,6 +291,9 @@ TabHandler.prototype = {
 	isEmptyTab: function(tab, gBrowser) {
 		// See "addTab" method in chrome://browser/content/tabbrowser.xml
 		var tabLabel = tab.getAttribute("label") || "";
+		// See https://github.com/Infocatcher/Private_Tab/issues/152
+		if(!tabLabel && platformVersion >= 33 && !this.isSeaMonkey)
+			return false;
 		if(
 			!tabLabel
 			|| tabLabel == "undefined"
