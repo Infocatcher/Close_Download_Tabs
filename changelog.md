@@ -9,6 +9,7 @@
 `x` Detect private:about:blank as empty tab (<a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension).<br>
 `x` Correctly load default preferences in Gecko 2 and 3.<br>
 `x` Fixed: don't select hidden tab in SeaMonkey.<br>
+`x` Correctly detect empty tabs in Firefox 33 (all tabs was wrongly detected as new empty tabs).<br>
 
 ##### 0.1.0a24 (2014-02-16)
 `*` Update makeTabEmpty() function for changes in bugs <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=867097">867097</a> and <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=867118">867118</a>.<br>
