@@ -6,6 +6,10 @@
 `*` - улучшено<br>
 
 ##### master/HEAD
+`x` Определение private:about:blank как пустой вкладки (<a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension).<br>
+`x` Исправлена загрузка настроек по умолчанию в Gecko 2 и 3.<br>
+`x` Исправлено блокирование выделения скрытой вкладки в SeaMonkey.<br>
+
 ##### 0.1.0a24 (2014-02-16)
 `*` Обновлена функция makeTabEmpty() с учетом изменений в багах <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=867097">867097</a> и <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=867118">867118</a>.<br>
 `x` Обработка события `TabOpen` делается до других расширений (для совместимости с <a href="https://addons.mozilla.org/addon/tile-tabs/versions/10.0">Tile Tabs 10.0</a>) (<a href="https://github.com/Infocatcher/Close_Download_Tabs/issues/3">#3</a>).<br>
