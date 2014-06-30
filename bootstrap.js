@@ -510,6 +510,7 @@ TabHandler.prototype = {
 		try {
 			var browser = tab.linkedBrowser;
 			browser.loadURI("about:blank");
+			browser.stop();
 			var sh = browser.sessionHistory;
 			if(sh instanceof Components.interfaces.nsISHistory)
 				sh.PurgeHistory(sh.count);
