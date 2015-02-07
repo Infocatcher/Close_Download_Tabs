@@ -458,7 +458,7 @@ TabHandler.prototype = {
 		return 1;
 	},
 	suspendBrowser: function(browser, suspend) {
-		if(!suspend ^ "__closeDownloadTabs_suspended" in browser)
+		if(suspend == "__closeDownloadTabs_suspended" in browser)
 			return;
 		if(suspend) {
 			browser.__closeDownloadTabs_suspended = true;
