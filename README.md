@@ -36,7 +36,7 @@ Yet another user script example: <a href="https://github.com/Infocatcher/UserScr
 Also you can use `CloseDownloadTabs:TabHide` and `CloseDownloadTabs:TabShow` events, example:
 ```js
 function logger(e) {
-	var tab = e.target;
+	var tab = e.originalTarget || e.target;
 	Services.console.logStringMessage(
 		e.type
 		+ "\nLabel: " + tab.getAttribute("label")
