@@ -221,6 +221,7 @@ TabHandler.prototype = {
 	id: -1,
 	origTab: null,
 	_stop: false,
+	_forceStop: false,
 	_hasProgressListener: false,
 	_waitedLoad: false,
 	_waitTimer: 0,
@@ -351,6 +352,14 @@ TabHandler.prototype = {
 			_log("Opened FTP with " + contentType + ', looks like "550 Failed to change directory" => set stop flag');
 			this._stop = true;
 		}
+		var spec = request.URI.spec;
+		if(
+			spec.substr(0, 9) == "jar:file:"
+			&& spec.indexOf("/privateTab@infocatcher.xpi!/protocolRedirect.html#") != -1
+		) {
+			_log("Detected private: protocol");
+			this._forceStop = true;
+		}
 		this.stopWait();
 		this.wait(this._waitStopProgress);
 		_log("onStateChange() + STATE_STOP => wait " + this._waitStopProgress + " ms");
@@ -391,6 +400,10 @@ TabHandler.prototype = {
 				this.wait();
 				return 0;
 			}
+			return 2;
+		}
+		if(this._forceStop) {
+			_log("Force stop flag, ignore");
 			return 2;
 		}
 		if(browser.currentURI.spec == "about:blank") {
