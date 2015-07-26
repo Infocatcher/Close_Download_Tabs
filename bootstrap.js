@@ -809,10 +809,7 @@ TabHandler.prototype = {
 		}
 
 		_info("Hide tab" + (makeEmpty ? " (not empty)" : "") + ": " + tabLabel.substr(0, 256));
-
-		var evt = tab.ownerDocument.createEvent("Events");
-		evt.initEvent("CloseDownloadTabs:TabHide", true, false);
-		tab.dispatchEvent(evt);
+		this.dispatchAPIEvent(tab, "TabHide");
 	},
 	showTab: function(tab) {
 		// Open in Browser extension https://addons.mozilla.org/firefox/addon/open-in-browser/ ?
@@ -859,9 +856,12 @@ TabHandler.prototype = {
 			Components.utils.reportError(e);
 		}
 
-		var evt = tab.ownerDocument.createEvent("Events");
-		evt.initEvent("CloseDownloadTabs:TabShow", true, false);
-		tab.dispatchEvent(evt);
+		this.dispatchAPIEvent(tab, "TabShow");
+	},
+	dispatchAPIEvent: function(node, type) {
+		var evt = node.ownerDocument.createEvent("Events");
+		evt.initEvent("CloseDownloadTabs:" + type, true, false);
+		node.dispatchEvent(evt);
 	},
 	updateTabsVisibility: function() {
 		// See <method name="showTab"> and <method name="hideTab">
