@@ -354,7 +354,8 @@ TabHandler.prototype = {
 		}
 		var spec = request.URI.spec;
 		if(
-			spec.substr(0, 9) == "jar:file:"
+			"@mozilla.org/network/protocol;1?name=private" in Components.classes
+			&& spec.substr(0, 9) == "jar:file:"
 			&& spec.indexOf("/privateTab@infocatcher.xpi!/protocolRedirect.html#") != -1
 		) {
 			_log("Detected private: protocol");
