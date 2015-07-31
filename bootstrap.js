@@ -497,7 +497,8 @@ TabHandler.prototype = {
 			}
 		}
 		try {
-			var dwu = browser.contentWindow
+			var contentWindow = browser.contentWindow || browser.contentWindowAsCPOW;
+			var dwu = contentWindow
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsIDOMWindowUtils);
 		}
@@ -553,7 +554,7 @@ TabHandler.prototype = {
 	canClose: function(browser) {
 		if("__closeDownloadTabs__canClose" in browser)
 			return true;
-		if(browser.contentDocument && this.cdt.hasKey(browser.contentDocument.documentURI))
+		if(browser.currentURI && this.cdt.hasKey(browser.currentURI.spec))
 			return browser.__closeDownloadTabs__canClose = true;
 		return false;
 	},
@@ -585,7 +586,7 @@ TabHandler.prototype = {
 				var content = win.dialog.mContext
 					.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 					.getInterface(Components.interfaces.nsIDOMWindow);
-				return content == this.browser.contentWindow;
+				return content == (this.browser.contentWindow || this.browser.contentWindowAsCPOW);
 			}
 			else if(loc == "chrome://greasemonkey/content/install.xul") {
 				_log("Found opened Greasemonkey's install.xul");
