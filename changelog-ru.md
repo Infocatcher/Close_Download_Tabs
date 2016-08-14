@@ -6,6 +6,10 @@
 `*` - улучшено<br>
 
 ##### master/HEAD
+`*` Добавлено игнорирование private:… ссылок от расширения <a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a>.<br>
+`x` Улучшена совместимость с мультипроцессным режимом (Electrolysis aka e10s) (<a href="https://github.com/Infocatcher/Close_Download_Tabs/issues/5">#5</a>).<br>
+`x` Исправлена совместимость с Firefox 51+ (SyntaxError: non-generator method definitions may not contain yield).<br>
+
 ##### 0.1.0a25 (2014-06-30)
 `x` Определение private:about:blank как пустой вкладки (<a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension).<br>
 `x` Исправлена загрузка настроек по умолчанию в Gecko 2 и 3.<br>
