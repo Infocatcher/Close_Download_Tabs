@@ -36,8 +36,9 @@ var closeDownloadTabs = {
 			return;
 		this.initialized = true;
 
-		for(var window in this.windows)
+		this.windows.forEach(function(window) {
 			this.initWindow(window, reason);
+		}, this);
 		Services.ww.registerNotification(this);
 
 		if(reason != APP_STARTUP)
@@ -49,8 +50,9 @@ var closeDownloadTabs = {
 		this.initialized = false;
 
 		this.initConsoleListener(false);
-		for(var window in this.windows)
+		this.windows.forEach(function(window) {
 			this.destroyWindow(window, reason);
+		}, this);
 		Services.ww.unregisterNotification(this);
 
 		for(var id in this._handlers) {
@@ -108,13 +110,15 @@ var closeDownloadTabs = {
 		return this.isSeaMonkey = Services.appinfo.name == "SeaMonkey";
 	},
 	get windows() {
+		var windows = [];
 		var isSeaMonkey = this.isSeaMonkey;
 		var ws = Services.wm.getEnumerator(isSeaMonkey ? null : "navigator:browser");
 		while(ws.hasMoreElements()) {
 			var window = ws.getNext();
 			if(!isSeaMonkey || this.isTargetWindow(window))
-				yield window;
+				windows.push(window);
 		}
+		return windows;
 	},
 	isTargetWindow: function(window) {
 		// Note: we don't have "windowtype" attribute for private windows in SeaMonkey 2.19+
