@@ -9,6 +9,7 @@
 `*` Ignore private:… URIs from <a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension.<br>
 `x` Improved compatibility with multi-process mode (Electrolysis aka e10s) (<a href="https://github.com/Infocatcher/Close_Download_Tabs/issues/5">#5</a>).<br>
 `x` Fixed compatibility with Firefox 51+ (SyntaxError: non-generator method definitions may not contain yield).<br>
+`x` Fixed compatibility with future Firefox versions: don't use deprecated `Date.prototype.toLocaleFormat()` in debug logs (<em>extensions.closeDownloadTabs.debug</em>) (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=818634">bug 818634</a>).<br>
 
 ##### 0.1.0a25 (2014-06-30)
 `x` Detect private:about:blank as empty tab (<a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension).<br>
