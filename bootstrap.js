@@ -14,6 +14,8 @@ function uninstall(params, reason) {
 }
 function startup(params, reason) {
 	platformVersion = parseFloat(Services.appinfo.platformVersion);
+	if(Services.appinfo.name == "Pale Moon" || Services.appinfo.name == "Basilisk")
+		platformVersion = platformVersion >= 4.1 ? 56 : 28;
 	if(platformVersion >= 2 && platformVersion < 10) {
 		rootURI = params && params.resourceURI
 			? params.resourceURI.spec
