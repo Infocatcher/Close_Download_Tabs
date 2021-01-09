@@ -209,7 +209,7 @@ function TabHandler(tab) {
 	var window = tab.ownerDocument.defaultView;
 	var gBrowser = window.gBrowser;
 	if(this.isEmptyTab(tab, gBrowser)) {
-		_log("Opened tab are empty, ignore");
+		_log("Opened tab is empty, ignore");
 		return;
 	}
 	_log("Opened new tab: " + (tab.getAttribute("label") || "").substr(0, 256));
