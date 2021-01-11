@@ -6,6 +6,7 @@
 		<em:id>closeDownloadTabs@infocatcher</em:id>
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
+		<em:multiprocessCompatible>true</em:multiprocessCompatible>
 		<em:name>Close Download Tabs</em:name>
 		<em:version>0.1.0a25</em:version>
 		<em:description>Automatically closes new tabs with downloadable links</em:description>
