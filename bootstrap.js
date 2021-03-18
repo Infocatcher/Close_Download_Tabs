@@ -364,14 +364,11 @@ function ts() {
 	return d.toTimeString().replace(/^.*\d+:(\d+:\d+).*$/, "$1") + ":" + "000".substr(("" + ms).length) + ms + " ";
 }
 function _info(s) {
-	if(prefs.get("debug", 2) > 0)
-		Services.console.logStringMessage(LOG_PREFIX + ts() + s);
+	Services.console.logStringMessage(LOG_PREFIX + ts() + s);
 }
 function _log(s) {
-	if(prefs.get("debug", 2) > 1)
-		Services.console.logStringMessage(LOG_PREFIX + ts() + s);
+	prefs.get("debug") && _info(s);
 }
 function _dump(s) {
-	if(prefs.get("debug", 2) > 0)
-		dump(LOG_PREFIX + ts() + s + "\n");
+	prefs.get("debug") && dump(s + "\n");
 }

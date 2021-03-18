@@ -18,4 +18,4 @@ pref("extensions.closeDownloadTabs.closeURI.delay", 150); // Delay between makeT
 // We make tab empty to don't save it in undo close history.
 // And without delay wrong state (not yet emptied) may be saved.
 
-pref("extensions.closeDownloadTabs.debug", 1); // 2 - all messages, 1 - only info, 0 - nothing
+pref("extensions.closeDownloadTabs.debug", false);
