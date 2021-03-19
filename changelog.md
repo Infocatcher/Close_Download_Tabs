@@ -6,6 +6,8 @@
 `*` - improved<br>
 
 ##### master/HEAD
+`*` Improved startup performance: code for tabs handling will be loaded only after first tab opening.<br>
+
 ##### 0.1.0a26 (2021-01-13)
 `*` Ignore private:… URIs from <a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension.<br>
 `x` Improved compatibility with multi-process mode (Electrolysis aka e10s) (<a href="https://github.com/Infocatcher/Close_Download_Tabs/issues/5">#5</a>).<br>

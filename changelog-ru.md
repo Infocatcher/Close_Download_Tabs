@@ -6,6 +6,8 @@
 `*` - улучшено<br>
 
 ##### master/HEAD
+`*` Улучшена производительность при запуске: код для обработки вкладок теперь загружается только после первого открытия вкладки.<br>
+
 ##### 0.1.0a26 (2021-01-13)
 `*` Добавлено игнорирование private:… ссылок от расширения <a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a>.<br>
 `x` Улучшена совместимость с мультипроцессным режимом (Electrolysis aka e10s) (<a href="https://github.com/Infocatcher/Close_Download_Tabs/issues/5">#5</a>).<br>
