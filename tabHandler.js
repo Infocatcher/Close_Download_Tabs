@@ -193,9 +193,7 @@ TabHandler.prototype = {
 		if(!tab.parentNode || !tab.linkedBrowser) // Tab closed
 			return 2;
 
-		var browser = this.browser;
-		var window = this.window;
-		if(this.isLoading(browser)) {
+		if(this.isLoading) {
 			if(Date.now() < this._stopWait) {
 				this.wait();
 				return 0;
@@ -206,6 +204,8 @@ TabHandler.prototype = {
 			_log("Force stop flag, ignore");
 			return 2;
 		}
+		var browser = this.browser;
+		var window = this.window;
 		if(browser.currentURI.spec == "about:blank") {
 			if(!this._waitedLoad) {
 				this._waitedLoad = true;
@@ -345,7 +345,8 @@ TabHandler.prototype = {
 			Components.utils.reportError(e);
 		}
 	},
-	isLoading: function(browser) {
+	get isLoading() {
+		var browser = this.browser;
 		return !browser.currentURI
 			|| !browser.webProgress
 			|| browser.webProgress.isLoadingDocument;
@@ -527,17 +528,15 @@ TabHandler.prototype = {
 			this.destroy();
 			return;
 		}
-
-		var gBrowser = this.gBrowser;
-		var browser = this.browser;
-
-		if(this.isLoading(browser)) {
+		if(this.isLoading) {
 			_info('Tab state was changed to "loading" => show tab and wait again...');
 			this.showTab(tab);
 			this.startWait();
 			return;
 		}
 
+		var gBrowser = this.gBrowser;
+		var browser = this.browser;
 		var isEmpty = browser.currentURI.spec == "about:blank";
 		if(!isEmpty)
 			var canClose = this.canClose(browser);
