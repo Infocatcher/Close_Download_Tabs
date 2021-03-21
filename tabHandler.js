@@ -347,9 +347,12 @@ TabHandler.prototype = {
 	},
 	get isLoading() {
 		var browser = this.browser;
-		return !browser.currentURI
+		var isLoading = !browser.currentURI
 			|| !browser.webProgress
 			|| browser.webProgress.isLoadingDocument;
+		if(isLoading || platformVersion <= 60)
+			return isLoading;
+		return this.tab.getAttribute("busy") == "true";
 	},
 	canClose: function(browser) {
 		if("__closeDownloadTabs__canClose" in browser)
