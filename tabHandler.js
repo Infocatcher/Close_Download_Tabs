@@ -204,6 +204,7 @@ TabHandler.prototype = {
 			_log("Force stop flag, ignore");
 			return 2;
 		}
+		_log("Tab looks like loaded");
 		var browser = this.browser;
 		var window = this.window;
 		if(browser.currentURI.spec == "about:blank") {
