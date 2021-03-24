@@ -7,6 +7,7 @@
 
 ##### master/HEAD
 `*` Improved startup performance: code for tabs handling will be loaded only after first tab opening.<br>
+`x` Fixed compatibility with Firefox 61+.<br>
 
 ##### 0.1.0a26 (2021-01-13)
 `*` Ignore private:… URIs from <a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension.<br>
