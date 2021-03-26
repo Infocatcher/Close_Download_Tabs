@@ -277,7 +277,9 @@ TabHandler.prototype = {
 		else {
 			delete browser.__closeDownloadTabs_suspended;
 		}
-		if("docShell" in browser) {
+		var ds = browser.docShell || null;
+		_log("suspendBrowser(), browser.docShell: " + ds + (ds ? "" : ", e10s?"));
+		if(ds) {
 			var ds = browser.docShell;
 			if(suspend) {
 				browser.__closeDownloadTabs_docShell = {
