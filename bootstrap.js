@@ -172,6 +172,7 @@ var closeDownloadTabs = {
 			if(pos != -1) {
 				var uri = msgText.substr(pos + this.consoleMessage.length);
 				this.addKey(uri);
+				timer(function() { _log("[API] URI marked as empty:\n" + uri); });
 			}
 		}
 	},
@@ -184,7 +185,7 @@ var closeDownloadTabs = {
 			cancelTimer(keys[key]);
 		keys[key] = timer(function() {
 			delete keys[key];
-			_log("URI expired:\n" + key);
+			_log("[API] URI expired:\n" + key);
 		}, this, prefs.get("closeURI.expire", 10e3));
 	},
 	hasKey: function(key) {
