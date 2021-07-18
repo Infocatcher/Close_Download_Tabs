@@ -1,5 +1,5 @@
 pref("extensions.closeDownloadTabs.closeSelectedTab", true);
-pref("extensions.closeDownloadTabs.maxLoadingWait", 150000); // 2.5*60e3, don't wait more than this time
+pref("extensions.closeDownloadTabs.maxLoadingWait", 20000); // Wait 20s for tab loading, should be less than network waiting
 pref("extensions.closeDownloadTabs.waitInterval", 500); // Interval to periodically check browser.webProgress.isLoadingDocument
 // Needs for custombutton://... links (https://addons.mozilla.org/addon/custom-buttons/)
 // and any other custom protocols with nsIProtocolHandler.URI_DOES_NOT_RETURN_DATA flag
