@@ -8,6 +8,7 @@
 ##### master/HEAD
 `*` Improved startup performance: code for tabs handling will be loaded only after first tab opening.<br>
 `x` Fixed compatibility with Firefox 61+.<br>
+`*` Reduced default value for <em>extensions.closeDownloadTabs.maxLoadingWait</em> preference: 150000 -> 15000 (150s -> 15s) to not close tabs in case of slow sites or network problems.<br>
 
 ##### 0.1.0a26 (2021-01-13)
 `*` Ignore private:… URIs from <a href="https://addons.mozilla.org/addon/private-tab/">Private Tab</a> extension.<br>
