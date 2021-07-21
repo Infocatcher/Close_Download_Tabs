@@ -103,6 +103,7 @@ TabHandler.prototype = {
 		// We should check tab label for SeaMonkey and old Firefox
 		var emptyTabLabel = this.getTabBrowserString("tabs.emptyTabTitle", gBrowser)
 			|| this.getTabBrowserString("tabs.untitled", gBrowser);
+		!emptyTabLabel && _log("isEmptyTab(): can't get empty tab label");
 		return tabLabel == emptyTabLabel;
 	},
 	getTabBrowserString: function(id, gBrowser) {
