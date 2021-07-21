@@ -138,7 +138,7 @@ TabHandler.prototype = {
 		catch(e) { // Component returned failure code: 0x80040111 (NS_ERROR_NOT_AVAILABLE) [nsIChannel.contentType]
 		}
 		if(contentType == "application/x-xpinstall") {
-			// Built-in extensions installation mechanism use tab depended notifications,
+			// Built-in extension installation mechanism uses tab-depended notifications,
 			// so ignore this content-type.
 			// And we can get xpinstallConfirm.xul dialog without download-in-progress notification.
 			_info("Opened " + contentType + " => set stop flag");
