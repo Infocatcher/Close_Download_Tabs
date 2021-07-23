@@ -183,27 +183,34 @@ TabHandler.prototype = {
 	get fixedWait() {
 		return setProperty(this, "fixedWait", this.waitProceed.bind(this));
 	},
+	WAIT: {
+		PROCEED: 0,
+		CLOSING: 1,
+		DONE:    2
+	},
 	waitProceed: function() {
+		const WAIT = this.WAIT;
 		switch(this.waitCheck()) {
-			case 1: this.destroyProgress(); break;
-			case 2: this.destroy();
+			case WAIT.CLOSING: this.destroyProgress(); break;
+			case WAIT.DONE:    this.destroy();
 		}
 	},
 	waitCheck: function() {
+		const WAIT = this.WAIT;
 		var tab = this.tab;
 		if(!tab.parentNode || !tab.linkedBrowser) // Tab closed
-			return 2;
+			return WAIT.DONE;
 
 		if(this.isLoading) {
 			if(Date.now() < this._stopWait) {
 				this.wait();
-				return 0;
+				return WAIT.PROCEED;
 			}
-			return 2;
+			return WAIT.DONE;
 		}
 		if(this._forceStop) {
 			_log("Force stop flag, ignore");
-			return 2;
+			return WAIT.DONE;
 		}
 		_log("Tab looks like loaded");
 		var browser = this.browser;
@@ -216,19 +223,19 @@ TabHandler.prototype = {
 					: this._waitLoaded;
 				this.wait(delay);
 				_log("Wait loaded tab: " + delay + "ms");
-				return 0;
+				return WAIT.PROCEED;
 			}
 		}
 		else {
 			var canClose = this.canClose(browser);
 			if(!canClose) {
 				_log("Opened regular tab, ignore");
-				return 2;
+				return WAIT.DONE;
 			}
 		}
 		if(this._stop) {
 			_log("Stop flag, ignore");
-			return 2;
+			return WAIT.DONE;
 		}
 
 		var gBrowser = this.gBrowser;
@@ -236,7 +243,7 @@ TabHandler.prototype = {
 			var nb = gBrowser.getNotificationBox(browser);
 			if(nb && nb.currentNotification) {
 				_info("Found notification in <notificationbox>, ignore tab");
-				return 2;
+				return WAIT.DONE;
 			}
 		}
 		if(
@@ -246,17 +253,17 @@ TabHandler.prototype = {
 			var ns = window.PopupNotifications._getNotificationsForBrowser(browser);
 			if(ns && ns.length) {
 				_info("Found doorhanger notification, ignore tab");
-				return 2;
+				return WAIT.DONE;
 			}
 		}
 		if(this.hasSingleTab(gBrowser)) {
 			_log("Don't hide last tab");
-			return 2;
+			return WAIT.DONE;
 		}
 
 		if(gBrowser.selectedTab == tab) {
 			if(!prefs.get("closeSelectedTab", true))
-				return 2;
+				return WAIT.DONE;
 			this.unSelectTab(tab);
 		}
 
@@ -266,7 +273,7 @@ TabHandler.prototype = {
 
 		window.addEventListener("unload", this, false); //~ todo: tab closed, but can be restored :(
 		window.setTimeout(this.delayedClose.bind(this), this._waitDownload);
-		return 1;
+		return WAIT.CLOSING;
 	},
 	suspendBrowser: function(browser, suspend) {
 		if(suspend == "__closeDownloadTabs_suspended" in browser)
