@@ -1,3 +1,4 @@
+const _cdt = "__closeDownloadTabs_";
 function TabHandler(tab) {
 	var window = tab.ownerDocument.defaultView;
 	var gBrowser = window.gBrowser;
@@ -276,21 +277,21 @@ TabHandler.prototype = {
 		return WAIT.CLOSING;
 	},
 	suspendBrowser: function(browser, suspend) {
-		if(suspend == "__closeDownloadTabs_suspended" in browser)
+		if(suspend == _cdt + "suspended" in browser)
 			return;
 		if(suspend) {
-			browser.__closeDownloadTabs_suspended = true;
+			browser[_cdt + "suspended"] = true;
 			browser.stop();
 		}
 		else {
-			delete browser.__closeDownloadTabs_suspended;
+			delete browser[_cdt + "suspended"];
 		}
 		var ds = browser.docShell || null;
 		_log("suspendBrowser(), browser.docShell: " + ds + (ds ? "" : ", e10s?"));
 		if(ds) {
 			var ds = browser.docShell;
 			if(suspend) {
-				browser.__closeDownloadTabs_docShell = {
+				browser[_cdt + "docShell"] = {
 					allowJavascript:    ds.allowJavascript,
 					allowMetaRedirects: ds.allowMetaRedirects,
 					__proto__: null
@@ -299,8 +300,8 @@ TabHandler.prototype = {
 				ds.suspendRefreshURIs();
 			}
 			else {
-				var origs = browser.__closeDownloadTabs_docShell;
-				delete browser.__closeDownloadTabs_docShell;
+				var origs = browser[_cdt + "docShell"];
+				delete browser[_cdt + "docShell"];
 				for(var p in origs)
 					ds[p] = origs[p];
 				ds.resumeRefreshURIs();
@@ -366,10 +367,10 @@ TabHandler.prototype = {
 		return this.tab.getAttribute("busy") == "true";
 	},
 	canClose: function(browser) {
-		if("__closeDownloadTabs_canClose" in browser)
+		if(_cdt + "canClose" in browser)
 			return true;
 		if(browser.currentURI && this.cdt.hasKey(browser.currentURI.spec))
-			return browser.__closeDownloadTabs_canClose = true;
+			return browser[_cdt + "canClose"] = true;
 		return false;
 	},
 	delayedClose: function() {
@@ -631,7 +632,7 @@ TabHandler.prototype = {
 			return;
 		}
 		var browser = tab.linkedBrowser;
-		delete browser.__closeDownloadTabs_canClose;
+		delete browser[_cdt + "canClose"];
 		this.suspendBrowser(browser, false);
 
 		var tabLabel = tab.getAttribute("label") || "";
