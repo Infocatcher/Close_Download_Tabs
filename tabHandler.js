@@ -366,10 +366,10 @@ TabHandler.prototype = {
 		return this.tab.getAttribute("busy") == "true";
 	},
 	canClose: function(browser) {
-		if("__closeDownloadTabs__canClose" in browser)
+		if("__closeDownloadTabs_canClose" in browser)
 			return true;
 		if(browser.currentURI && this.cdt.hasKey(browser.currentURI.spec))
-			return browser.__closeDownloadTabs__canClose = true;
+			return browser.__closeDownloadTabs_canClose = true;
 		return false;
 	},
 	delayedClose: function() {
@@ -631,7 +631,7 @@ TabHandler.prototype = {
 			return;
 		}
 		var browser = tab.linkedBrowser;
-		delete browser.__closeDownloadTabs__canClose;
+		delete browser.__closeDownloadTabs_canClose;
 		this.suspendBrowser(browser, false);
 
 		var tabLabel = tab.getAttribute("label") || "";
