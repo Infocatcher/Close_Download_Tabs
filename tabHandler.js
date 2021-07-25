@@ -497,13 +497,15 @@ TabHandler.prototype = {
 		box.appendChild(iframe);
 		document.documentElement.appendChild(box);
 
+		var _i = 0;
 		function checkModal() {
 			var aw = Services.ww.activeWindow;
+			var cnt = "[" + ++_i + "]";
 			if(aw != window) {
-				_log("checkModal()... active other window: " + (aw && aw.location) + ", wait ");
+				_log("checkModal()… " + cnt + " active other window: " + (aw && aw.location) + ", wait ");
 				return;
 			}
-			_log("checkModal()...");
+			_log("checkModal()… " + cnt);
 			var fw = cd.focusedWindow;
 			var fe = cd.focusedElement;
 			iframe.contentWindow.focus();
