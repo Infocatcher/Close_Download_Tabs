@@ -199,7 +199,7 @@ TabHandler.prototype = {
 	waitCheck: function() {
 		const WAIT = this.WAIT;
 		var tab = this.tab;
-		if(!tab.parentNode || !tab.linkedBrowser) // Tab closed
+		if(this.isClosedTab(tab))
 			return WAIT.DONE;
 
 		if(this.isLoading) {
@@ -373,6 +373,9 @@ TabHandler.prototype = {
 			return browser[_cdt + "canClose"] = true;
 		return false;
 	},
+	isClosedTab: function(tab) {
+		return !tab.parentNode || !tab.linkedBrowser;
+	},
 	delayedClose: function() {
 		var ws = Services.wm.getEnumerator(null);
 		while(ws.hasMoreElements()) {
@@ -540,7 +543,7 @@ TabHandler.prototype = {
 		//e && window.removeEventListener(e.type, this, false);
 
 		var tab = this.tab;
-		if(!tab.parentNode) { // Already closed
+		if(this.isClosedTab(tab)) {
 			_log("Tab already closed => destroy()");
 			this.destroy();
 			return;
@@ -629,8 +632,8 @@ TabHandler.prototype = {
 	},
 	showTab: function(tab) {
 		// Open in Browser extension https://addons.mozilla.org/firefox/addon/open-in-browser/ ?
-		if(!tab.parentNode || !tab.linkedBrowser) {
-			_info("showTab(): looks like tab already removed");
+		if(this.isClosedTab(tab)) {
+			_info("showTab(): looks like tab was already closed");
 			return;
 		}
 		var browser = tab.linkedBrowser;
