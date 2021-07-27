@@ -57,10 +57,9 @@ TabHandler.prototype = {
 		if("destroyModalChecker" in this)
 			this.destroyModalChecker();
 		if(reason) {
-			var tab = this.tab;
-			if(tab.hasAttribute(this.cdt.closedAttr)) {
+			if(this.tab.hasAttribute(this.cdt.closedAttr)) {
 				_log("Try restore not yet closed tab");
-				this.showTab(tab);
+				this.showTab();
 			}
 		}
 		this.window = this.tab = this.prevTab = this.gBrowser = this.browser = null;
@@ -270,7 +269,7 @@ TabHandler.prototype = {
 
 		// We can't save file w/o tab :(
 		// And Panorama still show this tab
-		this.hideTab(tab, canClose);
+		this.hideTab(canClose);
 
 		window.addEventListener("unload", this, false); //~ todo: tab closed, but can be restored :(
 		window.setTimeout(this.delayedClose.bind(this), this._waitDownload);
@@ -550,7 +549,7 @@ TabHandler.prototype = {
 		}
 		if(this.isLoading) {
 			_info('Tab state was changed to "loading" => show tab and wait again...');
-			this.showTab(tab);
+			this.showTab();
 			this.startWait();
 			return;
 		}
@@ -584,13 +583,14 @@ TabHandler.prototype = {
 		}
 		else if(tab.closing) {
 			_info("Tab isn't empty anymore => show it");
-			this.showTab(tab);
+			this.showTab();
 		}
 		this.destroy();
 	},
 	closedTabPrefix: "[Closed by Close Download Tabs]",
-	hideTab: function(tab, makeEmpty) {
+	hideTab: function(makeEmpty) {
 		var window = this.window;
+		var tab = this.tab;
 		var tabLabel = tab.getAttribute("label") || "";
 		var newLabel = this.closedTabPrefix + (tabLabel ? " " + tabLabel : "");
 
@@ -630,7 +630,8 @@ TabHandler.prototype = {
 		_info("Hide tab" + (makeEmpty ? " (not empty)" : "") + ": " + tabLabel.substr(0, 256));
 		this.dispatchAPIEvent(tab, "TabHide");
 	},
-	showTab: function(tab) {
+	showTab: function() {
+		var tab = this.tab;
 		// Open in Browser extension https://addons.mozilla.org/firefox/addon/open-in-browser/ ?
 		if(this.isClosedTab(tab)) {
 			_info("showTab(): looks like tab was already closed");
