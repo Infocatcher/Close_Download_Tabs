@@ -197,10 +197,8 @@ TabHandler.prototype = {
 	},
 	waitCheck: function() {
 		const WAIT = this.WAIT;
-		var tab = this.tab;
-		if(this.isClosedTab(tab))
+		if(this.wasClosed)
 			return WAIT.DONE;
-
 		if(this.isLoading) {
 			if(Date.now() < this._stopWait) {
 				this.wait();
@@ -213,6 +211,7 @@ TabHandler.prototype = {
 			return WAIT.DONE;
 		}
 		_log("Tab looks like loaded");
+		var tab = this.tab;
 		var browser = this.browser;
 		var window = this.window;
 		if(browser.currentURI.spec == "about:blank") {
@@ -365,15 +364,16 @@ TabHandler.prototype = {
 			return isLoading;
 		return this.tab.getAttribute("busy") == "true";
 	},
+	get wasClosed() {
+		var tab = this.tab;
+		return !tab.parentNode || !tab.linkedBrowser;
+	},
 	canClose: function(browser) {
 		if(_cdt + "canClose" in browser)
 			return true;
 		if(browser.currentURI && this.cdt.hasKey(browser.currentURI.spec))
 			return browser[_cdt + "canClose"] = true;
 		return false;
-	},
-	isClosedTab: function(tab) {
-		return !tab.parentNode || !tab.linkedBrowser;
 	},
 	delayedClose: function() {
 		var ws = Services.wm.getEnumerator(null);
@@ -541,8 +541,7 @@ TabHandler.prototype = {
 		var isUnload = !!e;
 		//e && window.removeEventListener(e.type, this, false);
 
-		var tab = this.tab;
-		if(this.isClosedTab(tab)) {
+		if(this.wasClosed) {
 			_log("Tab already closed => destroy()");
 			this.destroy();
 			return;
@@ -554,6 +553,7 @@ TabHandler.prototype = {
 			return;
 		}
 
+		var tab = this.tab;
 		var gBrowser = this.gBrowser;
 		var browser = this.browser;
 		var isEmpty = browser.currentURI.spec == "about:blank";
@@ -631,12 +631,12 @@ TabHandler.prototype = {
 		this.dispatchAPIEvent(tab, "TabHide");
 	},
 	showTab: function() {
-		var tab = this.tab;
 		// Open in Browser extension https://addons.mozilla.org/firefox/addon/open-in-browser/ ?
-		if(this.isClosedTab(tab)) {
+		if(this.wasClosed) {
 			_info("showTab(): looks like tab was already closed");
 			return;
 		}
+		var tab = this.tab;
 		var browser = tab.linkedBrowser;
 		delete browser[_cdt + "canClose"];
 		this.suspendBrowser(browser, false);
