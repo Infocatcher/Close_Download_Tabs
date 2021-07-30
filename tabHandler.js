@@ -326,10 +326,11 @@ TabHandler.prototype = {
 		_log((suspend ? "Suspend" : "Resume") + " browser: " + browser.currentURI.spec);
 	},
 
-	makeTabEmpty: function(tab) {
+	makeTabEmpty: function() {
 		// Based on code from Multiple Tab Handler extension
 		// chrome://multipletab/content/multipletab.js -> makeTabBlank()
 		// https://github.com/piroor/multipletab/blob/master/content/multipletab/multipletab.js
+		var tab = this.tab;
 		try {
 			var browser = tab.linkedBrowser;
 			browser.loadURI("about:blank");
@@ -563,7 +564,7 @@ TabHandler.prototype = {
 			tab.closing = false;
 			if(!this.hasSingleTab(gBrowser)) {
 				if(canClose) // Browser can't undo close destroyed tab, so try make it empty (empty tabs aren't saved!)
-					this.makeTabEmpty(tab);
+					this.makeTabEmpty();
 				if(canClose && !isUnload) {
 					window.setTimeout(function() {
 						gBrowser.removeTab(tab, { animate: false });
