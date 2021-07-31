@@ -101,11 +101,20 @@ var closeDownloadTabs = {
 				return;
 			prefs.delayedInit();
 		}
-		window.addEventListener("TabOpen", this, true);
-		window.addEventListener("SSTabRestoring", this, false);
-		window.setTimeout(function() {
+		var listen = function() {
+			window.addEventListener("TabOpen", this, true);
+			window.addEventListener("SSTabRestoring", this, false);
 			this.initConsoleListener(true);
-		}.bind(this), 0);
+		}.bind(this);
+		if("gBrowserInit" in window && !window.gBrowserInit.delayedStartupFinished) {
+			Services.obs.addObserver(function init(subject, topic) {
+				Services.obs.removeObserver(init, topic);
+				window.setTimeout(listen, 0);
+			}, "browser-delayed-startup-finished", false);
+		}
+		else {
+			window.setTimeout(listen, 0);
+		}
 	},
 	destroyWindow: function(window, reason) {
 		window.removeEventListener("DOMContentLoaded", this, false); // Window can be closed before DOMContentLoaded
