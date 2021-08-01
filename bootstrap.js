@@ -113,7 +113,7 @@ var closeDownloadTabs = {
 			}, "browser-delayed-startup-finished", false);
 		}
 		else {
-			window.setTimeout(listen, 0);
+			window.setTimeout(listen, reason == WINDOW_LOADED ? 200 : 0);
 		}
 	},
 	destroyWindow: function(window, reason) {
