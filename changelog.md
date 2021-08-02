@@ -6,7 +6,7 @@
 `*` - improved<br>
 
 ##### master/HEAD
-`*` Improved startup performance: code for tabs handling will be loaded only after first tab opening.<br>
+`*` Improved startup performance: code for tabs handling will be loaded only after first tab opening, also will be ignored tabs, that opened during session restoring.<br>
 `x` Fixed compatibility with Firefox 61+.<br>
 `*` Reduced default value for <em>extensions.closeDownloadTabs.maxLoadingWait</em> preference: 150000 -> 15000 (150s -> 15s) to not close tabs in case of slow sites or network problems.<br>
 
