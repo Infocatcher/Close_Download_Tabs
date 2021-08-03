@@ -99,7 +99,9 @@ var closeDownloadTabs = {
 		if(reason == WINDOW_LOADED) {
 			if(!this.isTargetWindow(window))
 				return;
-			prefs.delayedInit();
+			window.setTimeout(function() {
+				prefs.init();
+			}, 10);
 		}
 		var listen = function() {
 			window.addEventListener("TabOpen", this, true);
@@ -238,10 +240,6 @@ var prefs = {
 			this.loadDefaultPrefs();
 		Services.prefs.addObserver(this.ns, this, false);
 	},
-	delayedInit: function() {
-		if(!this.initialized)
-			timer(this.init, this, 10);
-	},
 	destroy: function() {
 		if(!this.initialized)
 			return;
@@ -259,7 +257,7 @@ var prefs = {
 	},
 
 	loadDefaultPrefs: function() {
-		this._cache = { __proto__: null }; // We use delayedInit(), so prefs.get() may save wrong value in cache
+		this._cache = { __proto__: null }; // prefs.get() will save wrong value in cache, if called before prefs.init()
 		var defaultBranch = Services.prefs.getDefaultBranch("");
 		var prefsFile = rootURI + "defaults/preferences/prefs.js";
 		var prefs = this;
