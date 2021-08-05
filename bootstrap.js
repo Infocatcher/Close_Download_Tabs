@@ -15,9 +15,9 @@ this.__defineGetter__("prefs", function() {
 	return prefs;
 });
 this.__defineGetter__("TabHandler", function() {
-	_log("Load tabHandler.js");
 	delete this.TabHandler;
 	Services.scriptloader.loadSubScript(rootURI + "tabHandler.js", this, "UTF-8");
+	_log("Loaded tabHandler.js");
 	return TabHandler;
 });
 
