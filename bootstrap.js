@@ -107,7 +107,7 @@ var closeDownloadTabs = {
 				return;
 			window.setTimeout(function() {
 				prefs; // Preload
-			}, 10);
+			}, 200);
 		}
 		var listen = function() {
 			window.addEventListener("TabOpen", this, true);
