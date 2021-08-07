@@ -57,7 +57,7 @@ var closeDownloadTabs = {
 		Services.ww.registerNotification(this);
 
 		if(reason != APP_STARTUP)
-			prefs; // Preload
+			timer(function() { prefs; /* Preload */ });
 	},
 	destroy: function(reason) {
 		if(!this.initialized)
