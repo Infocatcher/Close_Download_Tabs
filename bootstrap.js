@@ -130,6 +130,17 @@ var closeDownloadTabs = {
 			return;
 		window.removeEventListener("TabOpen", this, true);
 		window.removeEventListener("SSTabRestoring", this, false);
+
+		if(reason == WINDOW_CLOSED) {
+			_log("unload -> destroyWindow()");
+			for(var id in this._handlers) {
+				var th = this._handlers[id];
+				if(th.window == window) {
+					th.unload && th.unload();
+					th.window && th.destroy(reason);
+				}
+			}
+		}
 	},
 	get isSeaMonkey() {
 		delete this.isSeaMonkey;

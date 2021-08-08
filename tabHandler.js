@@ -51,12 +51,11 @@ TabHandler.prototype = {
 		}
 	},
 	destroy: function(reason) {
-		this.window.removeEventListener("unload", this, false);
 		this.window.removeEventListener("TabSelect", this, false);
 		this.destroyProgress();
 		if("destroyModalChecker" in this)
 			this.destroyModalChecker();
-		if(reason) {
+		if(reason && reason != WINDOW_CLOSED && reason != APP_SHUTDOWN) {
 			if(this.tab.hasAttribute(this.cdt.closedAttr)) {
 				_log("Try restore not yet closed tab");
 				this.showTab();
@@ -80,7 +79,6 @@ TabHandler.prototype = {
 	handleEvent: function(e) {
 		switch(e.type) {
 			case "TabSelect": this.dontSelectHiddenTab(e); break;
-			case "unload":    this.closeTab(e);
 		}
 	},
 
@@ -270,7 +268,7 @@ TabHandler.prototype = {
 		// And Panorama still show this tab
 		this.hideTab(canClose);
 
-		window.addEventListener("unload", this, false); //~ todo: tab closed, but can be restored :(
+		this.unload = this.closeTab.bind(this, true); //~ todo: tab closed, but can be restored :(
 		window.setTimeout(this.delayedClose.bind(this), this._waitDownload);
 		return WAIT.CLOSING;
 	},
@@ -475,9 +473,9 @@ TabHandler.prototype = {
 		var tabs = gBrowser.visibleTabs || gBrowser.tabs || gBrowser.tabContainer.childNodes;
 		return tabs.length <= 1;
 	},
-	closeTab: function(e) {
+	closeTab: function(isUnload) {
 		var checkModalInterval = prefs.get("checkModalInterval", 1500);
-		if(e || !this.cdt.hasAsyncFilePicker || checkModalInterval < 0) {
+		if(isUnload || !this.cdt.hasAsyncFilePicker || checkModalInterval < 0) {
 			this._closeTab.apply(this, arguments);
 			return;
 		}
@@ -537,10 +535,8 @@ TabHandler.prototype = {
 		_log("checkModal()");
 		checkModal();
 	},
-	_closeTab: function(e) {
+	_closeTab: function(isUnload) {
 		var window = this.window;
-		var isUnload = !!e;
-		//e && window.removeEventListener(e.type, this, false);
 
 		if(this.wasClosed) {
 			_log("Tab already closed => destroy()");
