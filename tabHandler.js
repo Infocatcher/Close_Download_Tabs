@@ -77,9 +77,8 @@ TabHandler.prototype = {
 		}
 	},
 	handleEvent: function(e) {
-		switch(e.type) {
-			case "TabSelect": this.dontSelectHiddenTab(e); break;
-		}
+		if(e.type == "TabSelect")
+			this.dontSelectHiddenTab(e);
 	},
 
 	isEmptyTab: function(tab, gBrowser) {
